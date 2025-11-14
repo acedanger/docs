@@ -14,25 +14,10 @@
         "tab": "Documentation",
         "groups": [
           {
-            "group": "Getting Started",
+            "group": "Overview",
             "pages": [
               "index",
               "quickstart"
-            ]
-          },
-          {
-            "group": "Setup & Configuration",
-            "pages": [
-              "guides/setup/cicd",
-              "guides/setup/sso",
-              "guides/setup/multi-user"
-            ]
-          },
-          {
-            "group": "Deployment",
-            "pages": [
-              "guides/deployment/docker",
-              "guides/deployment/caddy"
             ]
           },
           {

@@ -1,205 +1,207 @@
 ---
-title: "Quickstart"
-description: "Get your Trading Analysis Dashboard up and running in minutes"
+title: "Application Overview"
+description: "Understanding the Trading Analysis Dashboard and its components"
 ---
 
-## Get Started in Four Steps
+## What is the Trading Analysis Dashboard?
 
-Deploy your trading analysis dashboard and start tracking your portfolio performance.
+The Trading Analysis Dashboard is a Flask-based web application designed to track and analyze stock trading performance. It provides real-time portfolio management, historical trade analysis, and comprehensive reporting to help understand trading patterns and portfolio performance.
 
-### Step 1: Prerequisites
+## Core Components
 
 <AccordionGroup>
-  <Accordion icon="docker" title="Install Docker">
-    Install [Docker Desktop](https://www.docker.com/products/docker-desktop/) which includes Docker Compose. This is required for running the application containers.
-  </Accordion>
-  <Accordion icon="key" title="Get Finnhub API Key">
-    1. Register for a free account at [Finnhub.io](https://finnhub.io/register)
-    2. Navigate to your dashboard
-    3. Copy your API key - you'll need this for real-time price updates
+  <Accordion icon="chart-line" title="Portfolio Manager">
+    Tracks current holdings including stocks, ETFs, and mutual funds with real-time price updates from Finnhub API. Displays allocation charts, performance metrics, and gain/loss analysis.
     
-    <Tip>The free tier includes 60 API calls per minute and real-time US stock quotes</Tip>
+    **Key capabilities:**
+    - Add/edit/delete holdings
+    - Real-time price refresh
+    - Allocation visualization
+    - Performance tracking
   </Accordion>
-  <Accordion icon="google" title="Set up Google OAuth (Optional)">
-    For secure authentication, create OAuth credentials:
-    1. Visit [Google Cloud Console](https://console.cloud.google.com/)
-    2. Create a new project
-    3. Enable Google+ API
-    4. Create OAuth 2.0 credentials
-    5. Copy Client ID and Client Secret
+  
+  <Accordion icon="chart-bar" title="Trading Analysis Engine">
+    Analyzes historical trading performance using a hybrid matching algorithm that combines broker-provided realized gains/losses with transaction history for broker-level accuracy.
     
-    See the [SSO Setup Guide](/guides/setup/sso) for detailed instructions.
+    **Key capabilities:**
+    - Monthly P&L breakdown
+    - Trade-by-trade details
+    - Win/loss ratios
+    - Dividend tracking
+  </Accordion>
+  
+  <Accordion icon="calendar" title="Timeframe Analysis">
+    Allows custom date range analysis to compare trading performance across different periods and identify trends.
+    
+    **Key capabilities:**
+    - Custom date ranges
+    - Period comparison
+    - Trend identification
+    - Performance reports
+  </Accordion>
+  
+  <Accordion icon="calendar-days" title="Trading Calendar">
+    Visual calendar view showing daily trading activity with heat maps to quickly identify profitable and losing periods.
+    
+    **Key capabilities:**
+    - Monthly calendar view
+    - P&L heat mapping
+    - Pattern recognition
+    - Activity tracking
+  </Accordion>
+  
+  <Accordion icon="file-csv" title="CSV Import System">
+    Supports bulk data import via CSV files for both portfolio holdings and transaction history with drag-and-drop interface.
+    
+    **Key capabilities:**
+    - Drag-and-drop upload
+    - Real-time processing feedback
+    - Upload history tracking
+    - Format validation
   </Accordion>
 </AccordionGroup>
 
-### Step 2: Configure Environment
+## Application Flow
 
-<Steps>
-  <Step title="Clone the repository">
-    ```bash
-    git clone https://your-repo-url/trading-analysis-dashboard.git
-    cd trading-analysis-dashboard
-    ```
-  </Step>
-  
-  <Step title="Copy environment file">
-    ```bash
-    cp .env.docker .env
-    ```
-  </Step>
-  
-  <Step title="Edit .env file">
-    Update the following values:
-    
-    ```env .env
-    # Finnhub Configuration
-    FINNHUB_API_KEY=your_finnhub_api_key_here
-    
-    # Database Configuration
-    POSTGRES_PASSWORD=choose_secure_password
-    
-    # Flask Configuration
-    FLASK_SECRET_KEY=generate_random_secret_key
-    
-    # OAuth Configuration (Optional)
-    GOOGLE_CLIENT_ID=your_google_client_id
-    GOOGLE_CLIENT_SECRET=your_google_client_secret
-    AUTHORIZED_USERS=your-email@example.com
-    ```
-    
-    <Warning>Never commit the `.env` file to version control!</Warning>
-  </Step>
-</Steps>
+### User Authentication
 
-### Step 3: Deploy
+The application uses Google OAuth 2.0 for secure authentication. Users must be authorized (configured in environment variables) to access the system. Each user's data is completely isolated.
 
-<Tabs>
-  <Tab title="Windows">
-    ```batch
-    deploy.bat
-    ```
-  </Tab>
-  <Tab title="Linux/macOS">
-    ```bash
-    chmod +x deploy.sh
-    ./deploy.sh
-    ```
-  </Tab>
-  <Tab title="Manual">
-    ```bash
-    docker compose up -d
-    docker compose ps
-    ```
-  </Tab>
-</Tabs>
+```mermaid
+graph LR
+    A[User] --> B[Login Page]
+    B --> C{OAuth 2.0}
+    C -->|Authorized| D[Dashboard]
+    C -->|Unauthorized| E[Access Denied]
+```
 
-<Check>
-  Wait for all containers to start. This may take a minute for first-time setup.
-</Check>
+### Data Structure
 
-### Step 4: Access and Configure
+The application maintains three primary data entities:
 
-<Steps>
-  <Step title="Open the application">
-    Navigate to `http://localhost:8080` in your browser
-  </Step>
-  
-  <Step title="Login (if OAuth enabled)">
-    Click "Sign in with Google" and authorize the application
-  </Step>
-  
-  <Step title="Set up your profile">
-    Add your brokerage account number in the profile page
-  </Step>
-  
-  <Step title="Upload trading data">
-    Go to the Upload page and import your CSV transaction history
-  </Step>
-</Steps>
+| Entity | Description | Key Fields |
+|--------|-------------|------------|
+| **Users** | Authentication and profile | email, brokerage_account, google_id |
+| **Holdings** | Current portfolio positions | symbol, shares, cost_basis, current_price |
+| **Transactions** | Historical trading activity | symbol, action, shares, price, date |
 
-## Next Steps
+### Hybrid Matching Algorithm
 
-Now that your dashboard is running, explore these features:
+The trading analysis uses a sophisticated matching system:
+
+1. **Broker Realized Gains/Losses** - Pre-calculated lot matches from broker statements provide definitive P/L for closed positions
+2. **Transaction History** - Complete buy/sell transaction records for verification and detail
+3. **Hybrid Approach** - Combines both sources to achieve broker-level accuracy while maintaining transaction-level detail
+
+See [Hybrid Matching](/features/hybrid-matching) for technical details.
+
+## API Architecture
+
+The application exposes a RESTful API with the following endpoint categories:
 
 <CardGroup cols={2}>
-
-<Card title="Portfolio Management" icon="chart-line" href="/features/portfolio-management">
-  Add your holdings and track real-time performance
-</Card>
-
-<Card title="CSV Upload" icon="file-csv" href="/features/csv-upload">
-  Import your trading history from your broker
-</Card>
-
-<Card title="Trading Analysis" icon="magnifying-glass-chart" href="/features/trading-analysis">
-  Analyze monthly trading performance and P&L
-</Card>
-
-<Card title="API Reference" icon="code" href="/api-reference/introduction">
-  Integrate with the REST API
-</Card>
-
+  <Card title="Trading Data" icon="chart-line" href="/api-reference/months">
+    Access monthly trading data, individual trades, and P/L information
+  </Card>
+  <Card title="Portfolio" icon="briefcase" href="/api-reference/portfolio-holdings">
+    Manage holdings and trigger price refresh operations
+  </Card>
+  <Card title="Authentication" icon="lock" href="/api-reference/auth">
+    OAuth endpoints and session management
+  </Card>
+  <Card title="Timeframe Analysis" icon="calendar" href="/api-reference/timeframe">
+    Query performance across custom date ranges
+  </Card>
 </CardGroup>
 
-## Common Tasks
+## Technology Stack
 
-### View Logs
+### Backend
+- **Flask** - Python web framework handling routing, templating, and business logic
+- **SQLAlchemy** - ORM for database operations
+- **PostgreSQL** - Relational database for data persistence
+- **Flask-Dance** - OAuth integration for Google authentication
 
-```bash
-# All services
-docker compose logs -f
+### Frontend
+- **Bootstrap 5** - Responsive UI framework
+- **Chart.js** - Interactive charts and visualizations
+- **jQuery** - DOM manipulation and AJAX requests
+- **DataTables** - Enhanced table functionality
 
-# Specific service
-docker compose logs -f trading_app
+### External Services
+- **Finnhub API** - Real-time stock price data
+- **Google OAuth 2.0** - User authentication
+
+## Data Models
+
+### Portfolio Holdings
+
+```python
+class Holding:
+    id: int
+    user_id: int
+    symbol: str
+    shares: float
+    average_cost: float
+    type: str  # stock, etf, mutual_fund
+    current_price: float
+    last_updated: datetime
 ```
 
-### Restart Services
+### Trading Transactions
 
-```bash
-docker compose restart
+```python
+class Transaction:
+    id: int
+    user_id: int
+    symbol: str
+    action: str  # buy, sell
+    shares: int
+    price: float
+    date: datetime
+    account_number: str
 ```
 
-### Update Application
+### Realized Gains
 
-```bash
-docker compose pull
-docker compose up -d
+```python
+class RealizedGain:
+    id: int
+    user_id: int
+    symbol: str
+    date_acquired: datetime
+    date_sold: datetime
+    proceeds: float
+    cost_basis: float
+    gain_loss: float
 ```
 
-### Backup Database
+## Configuration
 
-```bash
-docker compose exec postgres pg_dump -U trading_user mining_wood > backup.sql
-```
+The application is configured via environment variables:
 
-## Troubleshooting
+| Variable | Purpose |
+|----------|---------|
+| `FINNHUB_API_KEY` | API key for price data |
+| `GOOGLE_CLIENT_ID` | OAuth client ID |
+| `GOOGLE_CLIENT_SECRET` | OAuth client secret |
+| `AUTHORIZED_USERS` | Comma-separated email list |
+| `FLASK_SECRET_KEY` | Session encryption key |
+| `DATABASE_URL` | PostgreSQL connection string |
 
-<AccordionGroup>
-  <Accordion title="Application won't start">
-    Check the logs for errors:
-    ```bash
-    docker compose logs trading_app
-    ```
-    
-    Common issues:
-    - Missing environment variables
-    - Database connection failure
-    - Port 8080 already in use
-  </Accordion>
-  
-  <Accordion title="Can't login">
-    - Verify OAuth credentials are correct in `.env`
-    - Check that your email is in `AUTHORIZED_USERS`
-    - Clear browser cookies and try again
-  </Accordion>
-  
-  <Accordion title="Prices not updating">
-    - Verify `FINNHUB_API_KEY` is set correctly
-    - Check API quota hasn't been exceeded
-    - Review application logs for API errors
-  </Accordion>
-</AccordionGroup>
+## Features Deep Dive
 
-<Note>
-  **Need help?** Check our [deployment guide](/guides/deployment/docker) or [setup guides](/guides/setup/cicd) for more detailed instructions.
-</Note>
+<CardGroup cols={2}>
+  <Card title="Portfolio Management" icon="chart-pie" href="/features/portfolio-management">
+    Learn about tracking holdings and price updates
+  </Card>
+  <Card title="Trading Analysis" icon="magnifying-glass-chart" href="/features/trading-analysis">
+    Understand P&L calculations and reporting
+  </Card>
+  <Card title="CSV Upload" icon="file-csv" href="/features/csv-upload">
+    Import data from your broker
+  </Card>
+  <Card title="Hybrid Matching" icon="shuffle" href="/features/hybrid-matching">
+    How the matching algorithm works
+  </Card>
+</CardGroup>

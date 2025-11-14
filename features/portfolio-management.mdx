@@ -24,32 +24,9 @@ The Portfolio Management feature allows you to track your current stock, ETF, an
   </Card>
 </CardGroup>
 
-## Quick Start
+## Using the Portfolio
 
-<Steps>
-  <Step title="Get Finnhub API Key">
-    Register at [Finnhub.io](https://finnhub.io/register) and copy your API key
-  </Step>
-  
-  <Step title="Configure Environment">
-    Add your API key to `.env`:
-    ```bash
-    FINNHUB_API_KEY=your_api_key_here
-    ```
-  </Step>
-  
-  <Step title="Add Holdings">
-    Use the web interface to add holdings manually or upload a CSV file
-  </Step>
-  
-  <Step title="Refresh Prices">
-    Click "Refresh Prices" to fetch current market prices
-  </Step>
-</Steps>
-
-## Adding Holdings
-
-### Manual Entry
+### Adding Holdings
 
 <Steps>
   <Step title="Click Add Holding">
@@ -140,6 +117,36 @@ The free Finnhub API tier allows:
 - **Delayed mutual fund prices** (typically 15-30 minutes)
 
 The application intelligently manages API requests to stay within these limits.
+
+## Technical Details
+
+### Price Update Logic
+
+When refreshing prices, the application:
+
+1. Checks the last update timestamp
+2. If > 15 minutes old, fetches new prices
+3. Makes API calls in batches to respect rate limits
+4. Updates the database with new prices and timestamp
+5. Recalculates portfolio metrics
+
+### Data Storage
+
+Holdings are stored in the `holdings` table with the following schema:
+
+```sql
+CREATE TABLE holdings (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES users(id),
+    symbol VARCHAR(10) NOT NULL,
+    type VARCHAR(20) NOT NULL,
+    shares DECIMAL(10,4) NOT NULL,
+    average_cost DECIMAL(10,2) NOT NULL,
+    current_price DECIMAL(10,2),
+    last_updated TIMESTAMP,
+    notes TEXT
+);
+```
 
 ## Next Steps
 

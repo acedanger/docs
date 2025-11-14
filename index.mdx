@@ -1,26 +1,26 @@
 ---
 title: "Trading Analysis Dashboard"
-description: "A comprehensive platform for analyzing trading performance and managing your investment portfolio"
+description: "Documentation for a comprehensive platform to analyze trading performance and manage investment portfolios"
 ---
 
-## Welcome to Trading Analysis Dashboard
+## Overview
 
-A modern, interactive web application for tracking and analyzing your stock trading performance with real-time portfolio management and comprehensive reporting.
+This documentation covers the Trading Analysis Dashboard - a Flask-based web application for tracking stock trading performance with real-time portfolio management and comprehensive reporting capabilities.
 
 <CardGroup cols={2}>
   <Card
-    title="Quick Start"
-    icon="rocket"
+    title="Application Overview"
+    icon="info-circle"
     href="/quickstart"
   >
-    Get up and running in minutes with our quick start guide
+    Learn about the application's purpose and architecture
   </Card>
   <Card
     title="Portfolio Management"
     icon="chart-line"
     href="/features/portfolio-management"
   >
-    Track your holdings with real-time price updates from Finnhub
+    Track holdings with real-time price updates from Finnhub
   </Card>
   <Card
     title="Trading Analysis"
@@ -34,82 +34,79 @@ A modern, interactive web application for tracking and analyzing your stock trad
     icon="code"
     href="/api-reference/introduction"
   >
-    Integrate with our comprehensive RESTful API
+    Explore the RESTful API endpoints
   </Card>
 </CardGroup>
 
-## Key Features
+## Core Features
 
 <AccordionGroup>
   <Accordion title="📊 Portfolio Tracking" icon="chart-pie">
-    Track your stock, ETF, and mutual fund holdings with real-time price updates from Finnhub. View allocation charts, performance metrics, and gain/loss analysis.
+    Track stock, ETF, and mutual fund holdings with real-time price updates from Finnhub. View allocation charts, performance metrics, and gain/loss analysis with automatic price refresh capabilities.
   </Accordion>
   
   <Accordion title="📈 Trading Analysis" icon="chart-line">
-    Analyze monthly trading performance with detailed P&L breakdowns, win/loss ratios, and trade-by-trade analysis. View comprehensive reports with dividend tracking.
+    Analyze monthly trading performance with detailed P&L breakdowns, win/loss ratios, and trade-by-trade analysis. Includes comprehensive reports with dividend tracking and hybrid matching algorithm for broker-level accuracy.
   </Accordion>
   
-  <Accordion title="🔐 Secure Authentication" icon="lock">
-    Google OAuth 2.0 integration with user-specific data isolation. Support for multiple users with separate brokerage accounts.
+  <Accordion title="🔐 Authentication & Authorization" icon="lock">
+    Google OAuth 2.0 integration with user-specific data isolation. Support for multiple users with separate brokerage accounts and authorized user controls.
   </Accordion>
   
-  <Accordion title="📁 CSV Upload" icon="file-csv">
-    Easy CSV import with drag-and-drop support. Real-time processing feedback and upload history tracking.
+  <Accordion title="📁 CSV Data Import" icon="file-csv">
+    Import transaction history and holdings via CSV with drag-and-drop support. Real-time processing feedback and upload history tracking for portfolio and trading data.
   </Accordion>
   
-  <Accordion title="🚀 Docker Deployment" icon="docker">
-    Complete Docker Compose setup with PostgreSQL database, Caddy reverse proxy, and automatic HTTPS with Let's Encrypt.
+  <Accordion title="📅 Timeframe Analysis" icon="calendar">
+    Analyze trading performance across custom date ranges. Compare periods, track trends, and generate reports for specific timeframes.
   </Accordion>
   
-  <Accordion title="⚙️ CI/CD Ready" icon="robot">
-    Full Gitea Actions workflow for automated testing, building, and deployment with security scanning and rollback capabilities.
+  <Accordion title="📊 Trading Calendar" icon="calendar-days">
+    View trading activity calendar with monthly heat maps showing P&L by day. Quickly identify patterns and peak trading periods.
   </Accordion>
 </AccordionGroup>
 
-## Technology Stack
+## Application Architecture
 
 <CardGroup cols={3}>
   <Card title="Flask" icon="python">
-    Python web framework
+    Python web framework for backend API and page rendering
   </Card>
   <Card title="PostgreSQL" icon="database">
-    Relational database
+    Relational database for user data, trades, and holdings
   </Card>
-  <Card title="Docker" icon="docker">
-    Containerization
+  <Card title="Bootstrap" icon="palette">
+    Frontend UI framework with custom styling
   </Card>
-  <Card title="Caddy" icon="server">
-    Reverse proxy & HTTPS
-  </Card>
-  <Card title="Finnhub" icon="chart-candlestick">
-    Real-time market data
+  <Card title="Finnhub API" icon="chart-candlestick">
+    Real-time market data integration
   </Card>
   <Card title="OAuth 2.0" icon="shield-check">
-    Secure authentication
+    Secure Google authentication
+  </Card>
+  <Card title="Chart.js" icon="chart-pie">
+    Interactive data visualizations
   </Card>
 </CardGroup>
 
-## Getting Started
+## Key Concepts
 
-<Steps>
-  <Step title="Prerequisites">
-    Install Docker and Docker Compose, and obtain a Finnhub API key
-  </Step>
-  <Step title="Clone & Configure">
-    Clone the repository and set up your environment variables
-  </Step>
-  <Step title="Deploy">
-    Run the deployment script to start all services
-  </Step>
-  <Step title="Upload Data">
-    Import your trading data via CSV upload
-  </Step>
-</Steps>
+### Hybrid Matching Algorithm
+
+The trading analysis uses a hybrid matching system that combines broker-provided realized gains/losses with transaction history to achieve broker-level accuracy for closed positions. See [Hybrid Matching](/features/hybrid-matching) for details.
+
+### Multi-User Support
+
+The application supports multiple users with isolated data. Each user can have separate brokerage accounts and portfolios, with data access controlled by OAuth authentication.
+
+### Real-Time Price Updates
+
+Portfolio holdings are updated with real-time prices from Finnhub API, with intelligent rate limiting and caching to stay within API quotas while providing fresh data.
 
 <Card
-  title="Ready to dive in?"
+  title="Explore the Application"
   icon="book-open"
   href="/quickstart"
 >
-  Check out our comprehensive quickstart guide to get your dashboard running in minutes
+  Read the application overview to understand how everything works together
 </Card>
