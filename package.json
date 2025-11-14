@@ -1,0 +1,11 @@
+{
+  "name": "docs",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "mintlify dev",
+    "install:mintlify": "npm install mintlify"
+  },
+  "devDependencies": {
+    "mintlify": "latest"
+  }
+}
