@@ -1,0 +1,230 @@
+---
+title: 'Calendar Data Endpoints'
+description: 'Trading calendar and daily activity tracking endpoints'
+---
+
+## Get Calendar Data
+
+```
+GET /api/calendar-data
+```
+
+Retrieves daily trading activity data for calendar view including weekly aggregates.
+
+**Query Parameters:**
+- `year` (number, optional): Year to display (defaults to current year)
+- `month` (number, optional): Month to display 1-12 (defaults to current month)
+
+**Example:**
+```http
+GET /api/calendar-data?year=2024&month=8
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "year": 2024,
+  "month": 8,
+  "days": [
+    {
+      "date": "2024-08-01",
+      "day": 1,
+      "day_of_week": 4,
+      "trade_count": 3,
+      "trading_pnl": 150.25,
+      "dividend_count": 0,
+      "dividends": 0,
+      "total_pnl": 150.25,
+      "has_activity": true,
+      "week_trade_count": 12,
+      "week_winning_trades": 8,
+      "week_total_pnl": 450.75,
+      "week_win_rate": 66.67
+    }
+  ],
+  "data_source": "postgresql"
+}
+```
+
+---
+
+## Get Day Details
+
+```
+GET /api/day-details
+```
+
+Retrieves detailed trades and dividends for a specific day.
+
+**Query Parameters:**
+- `date` (string, required): Date in YYYY-MM-DD format
+
+**Example:**
+```http
+GET /api/day-details?date=2024-08-15
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "date": "2024-08-15",
+  "trades": [
+    {
+      "symbol": "AAPL",
+      "buy_date": "2024-08-01",
+      "sell_date": "2024-08-15",
+      "buy_price": 195.50,
+      "sell_price": 198.75,
+      "volume": 100,
+      "total_profit_loss": 325.00,
+      "return_percentage": 1.66,
+      "trade_result": "Win"
+    }
+  ],
+  "dividends": [
+    {
+      "symbol": "MSFT",
+      "transaction_date": "2024-08-15",
+      "action": "Cash Dividend",
+      "amount": 75.50
+    }
+  ],
+  "summary": {
+    "date": "2024-08-15",
+    "total_trading_pnl": 325.00,
+    "total_dividends": 75.50,
+    "total_pnl": 400.50,
+    "trade_count": 1,
+    "dividend_count": 1,
+    "winning_trades": 1,
+    "win_rate": 100.0
+  },
+  "data_source": "postgresql"
+}
+```
+
+---
+
+## Export Calendar Day Data
+
+```
+GET /api/calendar/export/<format>
+```
+
+Export trades for a specific day in CSV, Excel, or PDF format.
+
+**Parameters:**
+- `format` (path): Export format - `csv`, `excel`, or `pdf`
+
+**Query Parameters:**
+- `date` (string, required): Date in YYYY-MM-DD format
+
+**Example:**
+```http
+GET /api/calendar/export/csv?date=2024-08-15
+GET /api/calendar/export/excel?date=2024-08-15
+GET /api/calendar/export/pdf?date=2024-08-15
+```
+
+**Response:** File download in requested format
+
+**Error Response:**
+```json
+{
+  "success": false,
+  "error": "No trades found for this date"
+}
+```
+HTTP Status: `404 Not Found`
+
+---
+
+## Get Trading Calendar Metrics
+
+```
+GET /api/trading-calendar/metrics
+```
+
+Retrieves trading calendar metrics including market open/close times and trading days. 
+
+**Authentication:** Not required (public endpoint)
+
+**Response:**
+```json
+{
+  "success": true,
+  "metrics": {
+    "current_time": "2024-08-15T14:30:00",
+    "market_status": "open",
+    "market_open_time": "09:30:00",
+    "market_close_time": "16:00:00",
+    "is_trading_day": true,
+    "next_trading_day": "2024-08-16",
+    "trading_days_this_month": 22,
+    "trading_days_this_year": 252
+  }
+}
+```
+
+**Market Status Values:**
+- `open` - Market is currently open for trading
+- `closed` - Market is closed
+- `pre-market` - Before regular trading hours
+- `after-hours` - After regular trading hours
+
+---
+
+## Export Monthly Data
+
+```
+GET /api/monthly/export/<format>
+```
+
+Export monthly trading data in CSV, Excel, or PDF format.
+
+**Parameters:**
+- `format` (path): Export format - `csv`, `excel`, or `pdf`
+
+**Query Parameters:**
+- `month` (string, required): Month in YYYY-MM format
+
+**Example:**
+```http
+GET /api/monthly/export/pdf?month=2024-08
+GET /api/monthly/export/excel?month=2024-08
+GET /api/monthly/export/csv?month=2024-08
+```
+
+**Response:** File download with monthly summary, trades, and dividends
+
+---
+
+## Use Cases
+
+<CardGroup cols={2}>
+  <Card title="Calendar View" icon="calendar">
+    Display monthly trading activity with visual heat maps
+  </Card>
+  <Card title="Daily Analysis" icon="magnifying-glass">
+    Drill down into specific trading days
+  </Card>
+  <Card title="Reports & Export" icon="file-export">
+    Generate reports for tax or record keeping
+  </Card>
+  <Card title="Market Hours" icon="clock">
+    Track market status and trading days
+  </Card>
+</CardGroup>
+
+## Related Documentation
+
+<CardGroup cols={2}>
+  <Card title="Trading Calendar Feature" icon="calendar-days" href="/features/trading-calendar">
+    Learn about the calendar visualization
+  </Card>
+  <Card title="Month Data" icon="chart-bar" href="/api-reference/month-data">
+    Get complete monthly trading data
+  </Card>
+</CardGroup>

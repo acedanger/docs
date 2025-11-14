@@ -1,0 +1,240 @@
+---
+title: 'Portfolio Additional Operations'
+description: 'Additional portfolio endpoints for validation, pricing, snapshots, and CSV upload'
+---
+
+## Validate Symbol
+
+```
+GET /api/portfolio/validate-symbol/<symbol>
+```
+
+Validate a stock symbol using Finnhub API before adding to portfolio.
+
+**Parameters:**
+- `symbol` (path): Stock ticker symbol
+
+**Response:**
+```json
+{
+  "valid": true,
+  "symbol": "AAPL",
+  "current_price": 195.50,
+  "message": "AAPL is a valid symbol"
+}
+```
+
+**Error Response:**
+```json
+{
+  "valid": false,
+  "symbol": "INVALID",
+  "error": "Symbol \"INVALID\" not found or invalid"
+}
+```
+
+---
+
+## Get Symbol Price
+
+```
+GET /api/portfolio/price/<symbol>
+```
+
+Get current price for a symbol and update cache.
+
+**Parameters:**
+- `symbol` (path): Stock ticker symbol
+
+**Response:**
+```json
+{
+  "success": true,
+  "symbol": "AAPL",
+  "price_data": {
+    "current_price": 195.50,
+    "change": 2.50,
+    "percent_change": 1.3,
+    "high": 196.75,
+    "low": 193.25,
+    "open": 194.00,
+    "previous_close": 193.00
+  }
+}
+```
+
+---
+
+## Capture Portfolio Snapshot
+
+```
+POST /api/portfolio/snapshot
+```
+
+Capture a snapshot of current portfolio value for historical tracking.
+
+**Request Body:**
+```json
+{
+  "snapshot_type": "MANUAL",
+  "notes": "Monthly review"
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "snapshot": {
+    "id": 1,
+    "snapshot_time": "2024-08-15T14:30:00",
+    "total_value": 195500.00,
+    "total_cost": 150500.00,
+    "total_gain_loss": 45000.00,
+    "total_return_pct": 29.9,
+    "holdings_count": 10
+  }
+}
+```
+
+**Snapshot Types:**
+- `MANUAL` - User-initiated snapshot
+- `AUTOMATIC` - System-generated snapshot
+- `EOD` - End of day snapshot
+
+---
+
+## Get Portfolio History
+
+```
+GET /api/portfolio/history
+```
+
+Get historical portfolio value snapshots for charting and analysis.
+
+**Query Parameters:**
+- `days` (number, optional): Number of days to retrieve (default: 30, 0 for all)
+- `type` (string, optional): Filter by snapshot type
+
+**Example:**
+```http
+GET /api/portfolio/history?days=90&type=AUTOMATIC
+```
+
+**Response:**
+```json
+{
+  "history": [
+    {
+      "id": 1,
+      "snapshot_time": "2024-08-15T14:30:00",
+      "total_value": 195500.00,
+      "total_cost": 150500.00,
+      "total_gain_loss": 45000.00,
+      "total_return_pct": 29.9,
+      "holdings_count": 10,
+      "snapshot_type": "AUTOMATIC",
+      "notes": ""
+    }
+  ]
+}
+```
+
+---
+
+## Delete Portfolio Snapshot
+
+```
+DELETE /api/portfolio/snapshot/<snapshot_id>
+```
+
+Delete a portfolio snapshot.
+
+**Parameters:**
+- `snapshot_id` (path): ID of the snapshot to delete
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Deleted MANUAL snapshot from 2024-08-15T14:30:00"
+}
+```
+
+---
+
+## Upload Portfolio CSV
+
+```
+POST /api/portfolio/upload-csv
+```
+
+or
+
+```
+POST /api/portfolio/upload
+```
+
+Upload CSV file with portfolio holdings for bulk import.
+
+**Content-Type:** `multipart/form-data`
+
+**Parameters:**
+- `csv_file` (file, required): CSV file with holdings
+
+**CSV Format:**
+
+Required columns: `symbol`, `shares`
+
+Optional columns: `cost_basis`, `average_cost`, `security_type`, `holding_type`, `type`, `purchase_date`, `notes`
+
+**Example CSV:**
+```csv
+symbol,shares,cost_basis,security_type,notes
+AAPL,100,150.50,STOCK,Long-term hold
+TSLA,50,245.00,STOCK,Growth position
+MSFT,75,320.00,STOCK,Tech diversification
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "imported": 15,
+  "updated": 3,
+  "errors": [
+    "Row 5: Invalid shares value for TSLA"
+  ],
+  "message": "Successfully imported 15 holdings and updated 3 existing holdings"
+}
+```
+
+---
+
+## Use Cases
+
+<CardGroup cols={2}>
+  <Card title="Symbol Validation" icon="check-circle">
+    Verify symbols before adding to portfolio to prevent errors
+  </Card>
+  <Card title="Price Tracking" icon="chart-line">
+    Get real-time price data for individual symbols
+  </Card>
+  <Card title="Historical Tracking" icon="clock">
+    Capture snapshots to track portfolio performance over time
+  </Card>
+  <Card title="Bulk Import" icon="file-csv">
+    Import multiple holdings at once from CSV
+  </Card>
+</CardGroup>
+
+## Related Documentation
+
+<CardGroup cols={2}>
+  <Card title="Portfolio Holdings" icon="briefcase" href="/api-reference/portfolio-holdings">
+    Main portfolio CRUD operations
+  </Card>
+  <Card title="Portfolio Refresh" icon="arrows-rotate" href="/api-reference/portfolio-refresh">
+    Refresh all portfolio prices
+  </Card>
+</CardGroup>

@@ -1,0 +1,148 @@
+---
+title: 'Get Upload History'
+api: 'GET /api/upload-history'
+description: 'Retrieves history of CSV file uploads with processing statistics'
+---
+
+## Endpoint
+
+```
+GET /api/upload-history
+```
+
+## Authentication
+
+Requires OAuth 2.0 authentication via session cookies.
+
+## Parameters
+
+None
+
+## Response
+
+<ResponseField name="success" type="boolean" required>
+  Indicates if the request was successful
+</ResponseField>
+
+<ResponseField name="history" type="array" required>
+  List of upload history objects
+  
+  <Expandable title="Upload History Object">
+    <ResponseField name="transaction_filename" type="string">
+      Name of transaction history CSV file
+    </ResponseField>
+    
+    <ResponseField name="gains_filename" type="string">
+      Name of realized gains CSV file
+    </ResponseField>
+    
+    <ResponseField name="timestamp" type="string">
+      Upload timestamp (ISO 8601 format)
+    </ResponseField>
+    
+    <ResponseField name="transaction_file_size" type="number">
+      Size of transaction file in bytes
+    </ResponseField>
+    
+    <ResponseField name="gains_file_size" type="number">
+      Size of gains file in bytes
+    </ResponseField>
+    
+    <ResponseField name="status" type="string">
+      Upload status (e.g., "success", "failed")
+    </ResponseField>
+    
+    <ResponseField name="user_email" type="string">
+      Email of user who uploaded
+    </ResponseField>
+    
+    <ResponseField name="account_id" type="number">
+      Account ID
+    </ResponseField>
+    
+    <ResponseField name="brokerage_account" type="string">
+      Brokerage account number
+    </ResponseField>
+    
+    <ResponseField name="transactions_processed" type="number">
+      Number of transactions processed
+    </ResponseField>
+    
+    <ResponseField name="months_updated" type="number">
+      Number of months updated
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+## Example
+
+<CodeGroup>
+```bash cURL
+curl -X GET https://performance.miningwood.com/api/upload-history \
+  -H "Cookie: session=your_session_cookie"
+```
+
+```javascript JavaScript
+const response = await fetch('/api/upload-history');
+const data = await response.json();
+
+if (data.success) {
+  data.history.forEach(upload => {
+    console.log(`${upload.timestamp}: ${upload.transactions_processed} transactions`);
+  });
+}
+```
+
+```python Python
+import requests
+
+response = requests.get('https://performance.miningwood.com/api/upload-history')
+data = response.json()
+
+if data['success']:
+    for upload in data['history']:
+        print(f"{upload['timestamp']}: {upload['status']}")
+```
+</CodeGroup>
+
+## Response Example
+
+```json
+{
+  "success": true,
+  "history": [
+    {
+      "transaction_filename": "transactions.csv",
+      "gains_filename": "realized_gains.csv",
+      "timestamp": "2024-08-15T14:30:00",
+      "transaction_file_size": 524288,
+      "gains_file_size": 262144,
+      "status": "success",
+      "user_email": "user@example.com",
+      "account_id": 1,
+      "brokerage_account": "12345678",
+      "transactions_processed": 279,
+      "months_updated": 3
+    }
+  ]
+}
+```
+
+## Use Cases
+
+- Track upload activity and processing history
+- Audit data imports
+- Verify successful uploads
+- Monitor file sizes and processing metrics
+- Troubleshoot import issues
+
+## Related Endpoints
+
+<CardGroup cols={2}>
+  <Card title="Upload CSV" icon="upload" href="/api-reference/upload-csv">
+    Upload new transaction and gains files
+  </Card>
+  <Card title="CSV Upload Guide" icon="book" href="/features/csv-upload">
+    Learn about CSV upload process
+  </Card>
+</CardGroup>

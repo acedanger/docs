@@ -44,7 +44,8 @@
           {
             "group": "Overview",
             "pages": [
-              "api-reference/introduction"
+              "api-reference/introduction",
+              "api-reference/health"
             ]
           },
           {
@@ -57,10 +58,32 @@
             ]
           },
           {
+            "group": "Symbols",
+            "pages": [
+              "api-reference/symbols",
+              "api-reference/symbols-summary",
+              "api-reference/symbol-details"
+            ]
+          },
+          {
+            "group": "Calendar",
+            "pages": [
+              "api-reference/calendar"
+            ]
+          },
+          {
             "group": "Portfolio",
             "pages": [
               "api-reference/portfolio-holdings",
-              "api-reference/portfolio-refresh"
+              "api-reference/portfolio-refresh",
+              "api-reference/portfolio-additional"
+            ]
+          },
+          {
+            "group": "Data Import",
+            "pages": [
+              "api-reference/upload-csv",
+              "api-reference/upload-history"
             ]
           },
           {

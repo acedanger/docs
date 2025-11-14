@@ -1,0 +1,186 @@
+---
+title: 'Get Symbol Details'
+api: 'GET /api/symbols/<symbol>'
+description: 'Retrieves detailed information for a specific symbol including all trades, dividends, and statistics'
+---
+
+## Endpoint
+
+```
+GET /api/symbols/<symbol>
+```
+
+## Authentication
+
+Requires OAuth 2.0 authentication via session cookies.
+
+## Parameters
+
+<ParamField path="symbol" type="string" required>
+  Stock ticker symbol (e.g., AAPL, TSLA)
+</ParamField>
+
+## Response
+
+<ResponseField name="success" type="boolean" required>
+  Indicates if the request was successful
+</ResponseField>
+
+<ResponseField name="data" type="object" required>
+  Detailed symbol data
+  
+  <Expandable title="Data Object">
+    <ResponseField name="symbol" type="string">
+      Stock ticker symbol
+    </ResponseField>
+    
+    <ResponseField name="summary" type="object">
+      Comprehensive trading statistics (see below)
+    </ResponseField>
+    
+    <ResponseField name="trades" type="array">
+      Array of all completed trades for this symbol
+    </ResponseField>
+    
+    <ResponseField name="dividends" type="array">
+      Array of all dividend payments for this symbol
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="data_source" type="string" required>
+  Database source (always "postgresql")
+</ResponseField>
+
+## Example
+
+<CodeGroup>
+```bash cURL
+curl -X GET https://performance.miningwood.com/api/symbols/AAPL \
+  -H "Cookie: session=your_session_cookie"
+```
+
+```javascript JavaScript
+async function getSymbolDetails(symbol) {
+  const response = await fetch(`/api/symbols/${symbol}`);
+  const data = await response.json();
+  
+  if (data.success) {
+    const { summary, trades, dividends } = data.data;
+    console.log(`${symbol} Summary:`, summary);
+    console.log(`Total Trades: ${trades.length}`);
+    console.log(`Total Dividends: ${dividends.length}`);
+  }
+}
+
+getSymbolDetails('AAPL');
+```
+
+```python Python
+import requests
+
+def get_symbol_details(symbol):
+    response = requests.get(f'https://performance.miningwood.com/api/symbols/{symbol}')
+    data = response.json()
+    
+    if data['success']:
+        return data['data']
+    else:
+        raise Exception(f"Error: {data.get('error')}")
+
+details = get_symbol_details('AAPL')
+print(f"Trading P&L: ${details['summary']['trading_profit_loss']:.2f}")
+```
+</CodeGroup>
+
+## Response Example
+
+```json
+{
+  "success": true,
+  "data": {
+    "symbol": "AAPL",
+    "summary": {
+      "total_trades": 25,
+      "trading_profit_loss": 3450.50,
+      "winning_trades": 18,
+      "win_rate_percentage": 72.0,
+      "avg_profit_loss": 138.02,
+      "min_profit_loss": -250.00,
+      "max_profit_loss": 550.00,
+      "avg_return_pct": 2.15,
+      "min_return_pct": -3.5,
+      "max_return_pct": 5.8,
+      "avg_holding_days": 12,
+      "total_volume": 2500,
+      "total_cost_basis": 487500.00,
+      "first_trade_date": "2024-01-15",
+      "last_trade_date": "2024-08-30",
+      "total_dividend_payments": 8,
+      "total_dividends": 320.00,
+      "avg_dividend_amount": 40.00,
+      "first_dividend_date": "2024-02-15",
+      "last_dividend_date": "2024-08-15",
+      "total_return": 3770.50,
+      "current_shares_held": 100
+    },
+    "trades": [
+      {
+        "buy_date": "2024-08-01",
+        "sell_date": "2024-08-15",
+        "buy_price": 195.50,
+        "sell_price": 198.75,
+        "volume": 100,
+        "total_profit_loss": 325.00,
+        "return_percentage": 1.66,
+        "trade_result": "Win",
+        "holding_days": 14
+      }
+    ],
+    "dividends": [
+      {
+        "transaction_date": "2024-08-15",
+        "action": "Cash Dividend",
+        "amount": 40.00
+      }
+    ]
+  },
+  "data_source": "postgresql"
+}
+```
+
+## Summary Statistics
+
+The `summary` object includes:
+
+| Statistic | Description |
+|-----------|-------------|
+| **Trading Metrics** | Total trades, winning trades, win rate, average P&L |
+| **Performance Range** | Min/max profit loss and return percentages |
+| **Holding Pattern** | Average holding days |
+| **Volume & Cost** | Total volume traded and cost basis |
+| **Dividend Income** | Payment count, total amount, average |
+| **Date Range** | First and last trade/dividend dates |
+| **Current Position** | Shares currently held |
+
+## Error Response
+
+```json
+{
+  "success": false,
+  "error": "Symbol not found"
+}
+```
+
+HTTP Status: `404 Not Found`
+
+## Related Endpoints
+
+<CardGroup cols={2}>
+  <Card title="Symbols Summary" icon="chart-bar" href="/api-reference/symbols-summary">
+    Get summary stats for all symbols
+  </Card>
+  <Card title="Timeframe Data" icon="calendar" href="/api-reference/timeframe">
+    Filter by date range and symbols
+  </Card>
+</CardGroup>

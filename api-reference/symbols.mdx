@@ -1,0 +1,112 @@
+---
+title: 'Get Symbols'
+api: 'GET /api/symbols'
+description: 'Retrieves a list of all distinct stock symbols that have been traded'
+---
+
+## Endpoint
+
+```
+GET /api/symbols
+```
+
+## Authentication
+
+Requires OAuth 2.0 authentication via session cookies.
+
+## Parameters
+
+None
+
+## Response
+
+<ResponseField name="success" type="boolean" required>
+  Indicates if the request was successful
+</ResponseField>
+
+<ResponseField name="symbols" type="array" required>
+  List of symbol objects
+  
+  <Expandable title="Symbol Object">
+    <ResponseField name="symbol" type="string">
+      Stock ticker symbol
+    </ResponseField>
+    
+    <ResponseField name="company_name" type="string">
+      Company name or cleaned description
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="data_source" type="string" required>
+  Database source (always "postgresql")
+</ResponseField>
+
+## Example
+
+<CodeGroup>
+```bash cURL
+curl -X GET https://performance.miningwood.com/api/symbols \
+  -H "Cookie: session=your_session_cookie"
+```
+
+```javascript JavaScript
+const response = await fetch('/api/symbols');
+const data = await response.json();
+
+if (data.success) {
+  data.symbols.forEach(item => {
+    console.log(`${item.symbol}: ${item.company_name}`);
+  });
+}
+```
+
+```python Python
+import requests
+
+response = requests.get('https://performance.miningwood.com/api/symbols')
+data = response.json()
+
+if data['success']:
+    for symbol in data['symbols']:
+        print(f"{symbol['symbol']}: {symbol['company_name']}")
+```
+</CodeGroup>
+
+## Response Example
+
+```json
+{
+  "success": true,
+  "symbols": [
+    {
+      "symbol": "AAPL",
+      "company_name": "Apple Inc."
+    },
+    {
+      "symbol": "TSLA",
+      "company_name": "Tesla, Inc."
+    },
+    {
+      "symbol": "MSFT",
+      "company_name": "Microsoft Corporation"
+    },
+    {
+      "symbol": "NVDA",
+      "company_name": "NVIDIA Corporation"
+    }
+  ],
+  "data_source": "postgresql"
+}
+```
+
+## Related Endpoints
+
+<CardGroup cols={2}>
+  <Card title="Symbols Summary" icon="chart-bar" href="/api-reference/symbols-summary">
+    Get comprehensive trading statistics for all symbols
+  </Card>
+  <Card title="Symbol Details" icon="magnifying-glass" href="/api-reference/symbol-details">
+    Get detailed information for a specific symbol
+  </Card>
+</CardGroup>

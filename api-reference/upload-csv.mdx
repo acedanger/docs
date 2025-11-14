@@ -1,0 +1,195 @@
+---
+title: 'Upload CSV Files'
+api: 'POST /api/upload-csv'
+description: 'Upload and process transaction history and realized gains CSV files from brokerage'
+---
+
+## Endpoint
+
+```
+POST /api/upload-csv
+```
+
+## Authentication
+
+Requires OAuth 2.0 authentication and user must have brokerage account number set in profile.
+
+## Content Type
+
+`multipart/form-data`
+
+## Parameters
+
+<ParamField body="transaction_history_file" type="file" required>
+  Transaction history CSV file from your brokerage
+</ParamField>
+
+<ParamField body="realized_gains_file" type="file" required>
+  Realized gains/losses CSV file from your brokerage
+</ParamField>
+
+## Response Format
+
+The endpoint returns streaming JSON responses to provide real-time progress updates:
+
+```json
+{"type": "progress", "percentage": 25, "message": "Starting data processing..."}
+{"type": "progress", "percentage": 40, "message": "Processing transaction history and realized gains..."}
+{"type": "progress", "percentage": 60, "message": "Synchronizing with database..."}
+{"type": "progress", "percentage": 80, "message": "Finalizing data import..."}
+{"type": "success", "message": "Successfully processed files", "stats": {"transactions_inserted": 279, "realized_gains_lots": 713, "broker_verified_trades": 156}}
+```
+
+## Success Response Fields
+
+<ResponseField name="type" type="string">
+  Response type: "progress", "success", or "error"
+</ResponseField>
+
+<ResponseField name="percentage" type="number">
+  Progress percentage (0-100) for progress type responses
+</ResponseField>
+
+<ResponseField name="message" type="string">
+  Human-readable status message
+</ResponseField>
+
+<ResponseField name="stats" type="object">
+  Import statistics (only in success response)
+  
+  <Expandable title="Stats Object">
+    <ResponseField name="transactions_inserted" type="number">
+      Number of transactions inserted
+    </ResponseField>
+    
+    <ResponseField name="realized_gains_lots" type="number">
+      Number of realized gain/loss lots processed
+    </ResponseField>
+    
+    <ResponseField name="broker_verified_trades" type="number">
+      Number of broker-verified completed trades
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+## Example
+
+<CodeGroup>
+```javascript JavaScript with Progress
+const formData = new FormData();
+formData.append('transaction_history_file', transactionFile);
+formData.append('realized_gains_file', gainsFile);
+
+const response = await fetch('/api/upload-csv', {
+  method: 'POST',
+  body: formData
+});
+
+// Handle streaming response
+const reader = response.body.getReader();
+const decoder = new TextDecoder();
+
+while (true) {
+  const { done, value } = await reader.read();
+  if (done) break;
+  
+  const text = decoder.decode(value);
+  const lines = text.split('\n').filter(l => l.trim());
+  
+  for (const line of lines) {
+    const data = JSON.parse(line);
+    
+    if (data.type === 'progress') {
+      console.log(`Progress: ${data.percentage}% - ${data.message}`);
+    } else if (data.type === 'success') {
+      console.log('Upload complete!', data.stats);
+    } else if (data.type === 'error') {
+      console.error('Upload failed:', data.message);
+    }
+  }
+}
+```
+
+```python Python
+import requests
+
+files = {
+    'transaction_history_file': open('transactions.csv', 'rb'),
+    'realized_gains_file': open('gains.csv', 'rb')
+}
+
+response = requests.post(
+    'https://performance.miningwood.com/api/upload-csv',
+    files=files,
+    stream=True
+)
+
+for line in response.iter_lines():
+    if line:
+        data = json.loads(line)
+        if data['type'] == 'progress':
+            print(f"Progress: {data['percentage']}%")
+        elif data['type'] == 'success':
+            print("Upload successful!", data['stats'])
+```
+
+```bash cURL
+curl -X POST https://performance.miningwood.com/api/upload-csv \
+  -H "Cookie: session=your_session_cookie" \
+  -F "transaction_history_file=@transactions.csv" \
+  -F "realized_gains_file=@realized_gains.csv"
+```
+</CodeGroup>
+
+## Error Responses
+
+```json
+{"type": "error", "message": "Both files must be CSV files"}
+```
+HTTP Status: `400 Bad Request`
+
+```json
+{"type": "error", "message": "Brokerage account number not set. Please update your profile."}
+```
+HTTP Status: `400 Bad Request`
+
+```json
+{"type": "error", "message": "Both transaction history and realized gains files are required"}
+```
+HTTP Status: `400 Bad Request`
+
+## CSV File Requirements
+
+### Transaction History File
+Should include columns such as:
+- Transaction date
+- Symbol
+- Action (Buy, Sell, etc.)
+- Quantity/Shares
+- Price
+- Amount
+- Account number
+
+### Realized Gains File
+Should include columns such as:
+- Symbol
+- Date acquired
+- Date sold
+- Proceeds
+- Cost basis
+- Gain/Loss
+
+<Note>
+  File format requirements may vary by brokerage. The system attempts to automatically detect and parse common formats.
+</Note>
+
+## Related Endpoints
+
+<CardGroup cols={2}>
+  <Card title="Upload History" icon="clock-rotate-left" href="/api-reference/upload-history">
+    View history of previous uploads
+  </Card>
+  <Card title="CSV Upload Feature" icon="file-csv" href="/features/csv-upload">
+    Learn more about CSV upload functionality
+  </Card>
+</CardGroup>

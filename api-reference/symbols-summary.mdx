@@ -1,0 +1,182 @@
+---
+title: 'Get Symbols Summary'
+api: 'GET /api/symbols/summary'
+description: 'Retrieves comprehensive summary data for all traded symbols including trading stats, dividends, and open positions'
+---
+
+## Endpoint
+
+```
+GET /api/symbols/summary
+```
+
+## Authentication
+
+Requires OAuth 2.0 authentication via session cookies.
+
+## Parameters
+
+None
+
+## Response
+
+<ResponseField name="success" type="boolean" required>
+  Indicates if the request was successful
+</ResponseField>
+
+<ResponseField name="symbols" type="array" required>
+  List of symbol summary objects with comprehensive trading statistics
+  
+  <Expandable title="Symbol Summary Object">
+    <ResponseField name="symbol" type="string">
+      Stock ticker symbol
+    </ResponseField>
+    
+    <ResponseField name="total_trades" type="number">
+      Total number of completed trades
+    </ResponseField>
+    
+    <ResponseField name="trading_profit_loss" type="number">
+      Total P&L from trades
+    </ResponseField>
+    
+    <ResponseField name="winning_trades" type="number">
+      Number of profitable trades
+    </ResponseField>
+    
+    <ResponseField name="win_rate_percentage" type="number">
+      Win rate percentage
+    </ResponseField>
+    
+    <ResponseField name="avg_profit_loss" type="number">
+      Average profit/loss per trade
+    </ResponseField>
+    
+    <ResponseField name="avg_return_percentage" type="number">
+      Average return percentage
+    </ResponseField>
+    
+    <ResponseField name="total_volume" type="number">
+      Total shares traded
+    </ResponseField>
+    
+    <ResponseField name="total_dividend_payments" type="number">
+      Number of dividend payments received
+    </ResponseField>
+    
+    <ResponseField name="total_dividends" type="number">
+      Total dividend income
+    </ResponseField>
+    
+    <ResponseField name="total_return" type="number">
+      Combined trading P&L and dividends
+    </ResponseField>
+    
+    <ResponseField name="first_trade_date" type="string">
+      Date of first trade (YYYY-MM-DD)
+    </ResponseField>
+    
+    <ResponseField name="last_trade_date" type="string">
+      Date of most recent trade (YYYY-MM-DD)
+    </ResponseField>
+    
+    <ResponseField name="first_dividend_date" type="string">
+      Date of first dividend
+    </ResponseField>
+    
+    <ResponseField name="last_dividend_date" type="string">
+      Date of most recent dividend
+    </ResponseField>
+    
+    <ResponseField name="current_shares_held" type="number">
+      Number of shares currently held
+    </ResponseField>
+    
+    <ResponseField name="has_open_position" type="boolean">
+      Whether user has an open position
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="data_source" type="string" required>
+  Database source (always "postgresql")
+</ResponseField>
+
+## Example
+
+<CodeGroup>
+```bash cURL
+curl -X GET https://performance.miningwood.com/api/symbols/summary \
+  -H "Cookie: session=your_session_cookie"
+```
+
+```javascript JavaScript
+const response = await fetch('/api/symbols/summary');
+const data = await response.json();
+
+if (data.success) {
+  data.symbols.forEach(symbol => {
+    console.log(`${symbol.symbol}: ${symbol.total_trades} trades, ${symbol.win_rate_percentage}% win rate`);
+  });
+}
+```
+
+```python Python
+import requests
+
+response = requests.get('https://performance.miningwood.com/api/symbols/summary')
+data = response.json()
+
+if data['success']:
+    for symbol in data['symbols']:
+        print(f"{symbol['symbol']}: ${symbol['trading_profit_loss']:.2f} P&L")
+```
+</CodeGroup>
+
+## Response Example
+
+```json
+{
+  "success": true,
+  "symbols": [
+    {
+      "symbol": "AAPL",
+      "total_trades": 25,
+      "trading_profit_loss": 3450.50,
+      "winning_trades": 18,
+      "win_rate_percentage": 72.0,
+      "avg_profit_loss": 138.02,
+      "avg_return_percentage": 2.15,
+      "total_volume": 2500,
+      "total_dividend_payments": 8,
+      "total_dividends": 320.00,
+      "total_return": 3770.50,
+      "first_trade_date": "2024-01-15",
+      "last_trade_date": "2024-08-30",
+      "first_dividend_date": "2024-02-15",
+      "last_dividend_date": "2024-08-15",
+      "current_shares_held": 100,
+      "has_open_position": true
+    }
+  ],
+  "data_source": "postgresql"
+}
+```
+
+## Use Cases
+
+- Performance comparison across different stocks
+- Identifying best and worst performing symbols
+- Portfolio allocation decisions based on historical performance
+- Risk analysis across different holdings
+
+## Related Endpoints
+
+<CardGroup cols={2}>
+  <Card title="Symbol Details" icon="magnifying-glass" href="/api-reference/symbol-details">
+    Get detailed trade-by-trade information for a specific symbol
+  </Card>
+  <Card title="Get Symbols" icon="list" href="/api-reference/symbols">
+    Get list of all traded symbols
+  </Card>
+</CardGroup>

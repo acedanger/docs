@@ -1,0 +1,129 @@
+---
+title: 'Health Check Endpoints'
+description: 'Health and readiness check endpoints for monitoring'
+---
+
+## Overview
+
+Health check endpoints are used for monitoring, load balancers, and Kubernetes orchestration. These endpoints do not require authentication.
+
+## Basic Health Check
+
+```
+GET /health
+```
+
+Basic health check endpoint for load balancers and monitoring systems.
+
+**Authentication:** Not required
+
+### Response
+
+```json
+{
+  "status": "healthy",
+  "timestamp": "2025-11-14T10:30:00.000000",
+  "service": "stocks-trading-analysis"
+}
+```
+
+**HTTP Status:** `200 OK`
+
+## Detailed Health Check
+
+```
+GET /health/detailed
+```
+
+Comprehensive health check including database connectivity, environment variables, and disk space.
+
+**Authentication:** Not required
+
+### Response
+
+```json
+{
+  "status": "healthy",
+  "timestamp": "2025-11-14T10:30:00.000000",
+  "service": "stocks-trading-analysis",
+  "checks": {
+    "database": {
+      "status": "healthy",
+      "message": "Database connection successful"
+    },
+    "environment": {
+      "status": "healthy",
+      "message": "All required environment variables are set"
+    },
+    "disk_space": {
+      "status": "healthy",
+      "message": "Disk space OK: 45.23GB free"
+    }
+  }
+}
+```
+
+**HTTP Status:** 
+- `200 OK` - All checks healthy
+- `503 Service Unavailable` - One or more checks degraded
+
+## Readiness Check
+
+```
+GET /health/ready
+```
+
+Kubernetes readiness probe to determine if the application is ready to serve traffic.
+
+**Authentication:** Not required
+
+### Response
+
+```json
+{
+  "status": "ready",
+  "timestamp": "2025-11-14T10:30:00.000000"
+}
+```
+
+**HTTP Status:** 
+- `200 OK` - Application ready
+- `503 Service Unavailable` - Application not ready
+
+## Liveness Check
+
+```
+GET /health/live
+```
+
+Kubernetes liveness probe to verify the application is running and responsive.
+
+**Authentication:** Not required
+
+### Response
+
+```json
+{
+  "status": "alive",
+  "timestamp": "2025-11-14T10:30:00.000000"
+}
+```
+
+**HTTP Status:** `200 OK`
+
+## Use Cases
+
+<CardGroup cols={2}>
+  <Card title="Load Balancers" icon="server">
+    Use `/health` endpoint for basic health checks
+  </Card>
+  <Card title="Kubernetes Probes" icon="cube">
+    Use `/health/ready` and `/health/live` for orchestration
+  </Card>
+  <Card title="Monitoring" icon="chart-line">
+    Use `/health/detailed` for comprehensive system monitoring
+  </Card>
+  <Card title="CI/CD Pipelines" icon="code-branch">
+    Verify deployment health before routing traffic
+  </Card>
+</CardGroup>
