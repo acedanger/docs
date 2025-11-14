@@ -1,33 +1,253 @@
 ---
-title: 'Introduction'
-description: 'Example section for showcasing API endpoints'
+title: 'API Introduction'
+description: 'RESTful API for the Trading Analysis Dashboard'
 ---
 
-<Note>
-  If you're not looking to build API reference documentation, you can delete
-  this section by removing the api-reference folder.
-</Note>
+## Overview
 
-## Welcome
-
-There are two ways to build API documentation: [OpenAPI](https://mintlify.com/docs/api-playground/openapi/setup) and [MDX components](https://mintlify.com/docs/api-playground/mdx/configuration). For the starter kit, we are using the following OpenAPI specification.
+The Trading Analysis Dashboard exposes a RESTful API for accessing trading data, portfolio holdings, and performance metrics programmatically. The API powers the web interface and can be used to build custom integrations or automation tools.
 
 <Card
-  title="Plant Store Endpoints"
-  icon="leaf"
-  href="https://github.com/mintlify/starter/blob/main/api-reference/openapi.json"
+  title="Live Application"
+  icon="globe"
+  href="https://performance.miningwood.com"
 >
-  View the OpenAPI specification file
+  Visit the Trading Analysis Dashboard at performance.miningwood.com
 </Card>
+
+## Base URL
+
+```
+https://performance.miningwood.com
+```
+
+For local development:
+```
+http://localhost:5000
+```
 
 ## Authentication
 
-All API endpoints are authenticated using Bearer tokens and picked up from the specification file.
+All API endpoints require authentication via Google OAuth 2.0. The API uses session-based authentication with HTTP-only cookies set after successful OAuth login.
+
+<Info>
+  See the [Authentication guide](/api-reference/auth) for details on the OAuth flow and session management.
+</Info>
+
+## API Categories
+
+<CardGroup cols={2}>
+  <Card title="Trading Data" icon="chart-line" href="/api-reference/months">
+    Access monthly trading data, P&L reports, and individual trade details
+  </Card>
+  <Card title="Portfolio" icon="briefcase" href="/api-reference/portfolio-holdings">
+    Manage portfolio holdings and trigger price updates
+  </Card>
+  <Card title="Timeframe Analysis" icon="calendar" href="/api-reference/timeframe">
+    Query trading performance across custom date ranges
+  </Card>
+  <Card title="Authentication" icon="lock" href="/api-reference/auth">
+    OAuth endpoints and session management
+  </Card>
+</CardGroup>
+
+## Response Format
+
+All API responses return JSON with a consistent structure:
+
+### Success Response
 
 ```json
-"security": [
-  {
-    "bearerAuth": []
-  }
-]
+{
+  "success": true,
+  "data": { ... },
+  "data_source": "postgresql"
+}
 ```
+
+### Error Response
+
+```json
+{
+  "success": false,
+  "error": "Error message description"
+}
+```
+
+## Common Response Fields
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `success` | boolean | Indicates if the request was successful |
+| `error` | string | Error message (only present on failure) |
+| `data_source` | string | Database source (typically "postgresql") |
+| `redirect_to_login` | boolean | Whether client should redirect to login (for 401 errors) |
+
+## HTTP Status Codes
+
+The API uses standard HTTP status codes:
+
+| Code | Meaning | When Used |
+|------|---------|-----------|
+| `200` | OK | Successful request |
+| `400` | Bad Request | Invalid request parameters |
+| `401` | Unauthorized | Authentication required |
+| `403` | Forbidden | User not authorized |
+| `404` | Not Found | Resource not found |
+| `500` | Internal Server Error | Server-side error |
+
+## Rate Limiting
+
+<Note>
+  The API does not currently implement rate limiting, but the Finnhub price refresh endpoint is subject to Finnhub's API rate limits (60 requests/minute for free tier).
+</Note>
+
+## Data Types
+
+### Date Formats
+
+- **Months**: `YYYY-MM` format (e.g., `"2024-08"`)
+- **Dates**: `YYYY-MM-DD` format (e.g., `"2024-08-15"`)
+- **Timestamps**: ISO 8601 format (e.g., `"2024-08-15T14:30:00Z"`)
+
+### Numeric Values
+
+- **Prices**: Decimal with 2-4 decimal places
+- **Shares**: Integer or decimal (supports fractional shares)
+- **P&L Values**: Decimal with 2 decimal places (can be negative)
+- **Percentages**: Decimal (e.g., `0.1523` for 15.23%)
+
+## Example Usage
+
+### Fetch Available Trading Months
+
+```bash
+curl -X GET https://performance.miningwood.com/api/months \
+  -H "Cookie: session=your_session_cookie"
+```
+
+### Get Portfolio Holdings
+
+```bash
+curl -X GET https://performance.miningwood.com/api/portfolio/holdings \
+  -H "Cookie: session=your_session_cookie"
+```
+
+### Analyze Custom Timeframe
+
+```bash
+curl -X GET "https://performance.miningwood.com/api/timeframe?start_date=2024-01-01&end_date=2024-06-30" \
+  -H "Cookie: session=your_session_cookie"
+```
+
+## Client Libraries
+
+The API can be accessed using any HTTP client library:
+
+<CodeGroup>
+```javascript JavaScript (Fetch)
+const response = await fetch('/api/months', {
+  credentials: 'include' // Include cookies
+});
+const data = await response.json();
+```
+
+```python Python (requests)
+import requests
+
+session = requests.Session()
+response = session.get('https://performance.miningwood.com/api/months')
+data = response.json()
+```
+
+```bash cURL
+curl -X GET https://performance.miningwood.com/api/months \
+  --cookie-jar cookies.txt \
+  --cookie cookies.txt
+```
+</CodeGroup>
+
+## Data Models
+
+### Trade Object
+
+```json
+{
+  "symbol": "AAPL",
+  "buy_date": "2024-01-15",
+  "sell_date": "2024-03-20",
+  "buy_price": 150.25,
+  "sell_price": 165.80,
+  "volume": 100,
+  "profit_loss": 1555.00,
+  "return_percentage": 10.35
+}
+```
+
+### Holding Object
+
+```json
+{
+  "id": 123,
+  "symbol": "MSFT",
+  "type": "stock",
+  "shares": 50,
+  "average_cost": 320.50,
+  "current_price": 345.20,
+  "market_value": 17260.00,
+  "gain_loss": 1235.00,
+  "gain_loss_percentage": 7.70,
+  "last_updated": "2024-08-15T14:30:00Z"
+}
+```
+
+### Month Summary Object
+
+```json
+{
+  "month": "2024-08",
+  "total_trades": 15,
+  "winning_trades": 10,
+  "win_rate": 66.67,
+  "trading_pl": 1250.75,
+  "dividend_income": 125.50,
+  "total_return_with_dividends": 1376.25
+}
+```
+
+## Error Handling
+
+Always check the `success` field before processing response data:
+
+```javascript
+const response = await fetch('/api/months');
+const data = await response.json();
+
+if (!data.success) {
+  console.error('API Error:', data.error);
+  
+  if (data.redirect_to_login) {
+    window.location.href = '/auth/login';
+  }
+  return;
+}
+
+// Process data.months
+```
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Authentication" icon="lock" href="/api-reference/auth">
+    Learn about OAuth flow and session management
+  </Card>
+  <Card title="Trading Data" icon="chart-line" href="/api-reference/months">
+    Explore trading data endpoints
+  </Card>
+  <Card title="Portfolio API" icon="briefcase" href="/api-reference/portfolio-holdings">
+    Manage portfolio holdings
+  </Card>
+  <Card title="Timeframe Analysis" icon="calendar" href="/api-reference/timeframe">
+    Query custom date ranges
+  </Card>
+</CardGroup>
