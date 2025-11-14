@@ -111,8 +111,7 @@
   },
   "footer": {
     "socials": {
-      "github": "https://github.com/acedanger",
-      "gitea": "https://git.ptrwd.com/peterwood/stocks/"
+      "website": "https://git.ptrwd.com/peterwood/stocks/"
     }
   }
 }
