@@ -1,0 +1,283 @@
+---
+title: 'CI/CD Setup with Gitea'
+description: 'Set up continuous integration and deployment using Gitea Actions'
+---
+
+## Overview
+
+This guide will help you set up continuous integration and continuous deployment (CI/CD) for your trading analysis application using Gitea Actions.
+
+## Prerequisites
+
+Before starting, ensure you have:
+
+<CardGroup cols={2}>
+  <Card title="Gitea Server" icon="server">
+    Running and accessible Gitea instance
+  </Card>
+  <Card title="Production Server" icon="cloud">
+    Docker, Docker Compose, SSH access, and Git installed
+  </Card>
+  <Card title="Domain Name" icon="globe">
+    Domain pointing to your production server
+  </Card>
+  <Card title="SSH Keys" icon="key">
+    SSH key pair for deployment access
+  </Card>
+</CardGroup>
+
+## Step 1: Repository Setup
+
+Push your code to Gitea and enable Actions:
+
+```bash
+git remote add origin https://your-gitea-instance.com/your-username/stocks-trading-analysis.git
+git push -u origin main
+```
+
+<Steps>
+  <Step title="Enable Gitea Actions">
+    Go to Repository Settings → Actions and enable Actions for this repository
+  </Step>
+</Steps>
+
+## Step 2: Configure Repository Secrets
+
+Navigate to your repository → Settings → Secrets and add the following secrets:
+
+### Required Secrets
+
+| Secret Name | Description | Example |
+|-------------|-------------|---------|
+| `SSH_PRIVATE_KEY` | SSH private key for production server access | `-----BEGIN OPENSSH PRIVATE KEY-----\n...` |
+| `PRODUCTION_HOST` | Production server IP or hostname | `203.0.113.1` or `server.example.com` |
+| `PRODUCTION_USER` | SSH username for production server | `ubuntu`, `root`, or your username |
+| `DOMAIN` | Your production domain | `performance.miningwood.com` |
+
+### Application Secrets
+
+| Secret Name | Description | Example |
+|-------------|-------------|---------|
+| `FLASK_SECRET_KEY` | Flask session secret key | `your-very-secure-secret-key-here` |
+| `POSTGRES_PASSWORD` | Production database password | `secure-database-password` |
+| `GOOGLE_CLIENT_ID` | OAuth Google Client ID | `123456789.apps.googleusercontent.com` |
+| `GOOGLE_CLIENT_SECRET` | OAuth Google Client Secret | `GOCSPX-your-client-secret` |
+| `AUTHORIZED_USERS` | Comma-separated authorized emails | `admin@example.com,user@example.com` |
+
+### Optional Notification Secrets
+
+| Secret Name | Description |
+|-------------|-------------|
+| `SLACK_WEBHOOK_URL` | Slack webhook for notifications |
+| `DISCORD_WEBHOOK_URL` | Discord webhook for notifications |
+
+## Step 3: Production Server Setup
+
+### Create Application Directory
+
+```bash
+# SSH into your production server
+ssh your-user@your-production-server
+
+# Create application directory
+sudo mkdir -p /opt/stocks-trading-analysis
+sudo chown $USER:$USER /opt/stocks-trading-analysis
+cd /opt/stocks-trading-analysis
+
+# Clone the repository
+git clone https://your-gitea-instance.com/your-username/stocks-trading-analysis.git .
+```
+
+### Configure Environment Variables
+
+```bash
+# Copy the production environment template
+cp .gitea/deployment/production.env .env
+
+# Edit the environment file with your actual values
+nano .env
+```
+
+Update the following values in `.env`:
+- `POSTGRES_PASSWORD`: Set a secure database password
+- `FLASK_SECRET_KEY`: Generate a secure secret key
+- `GOOGLE_CLIENT_ID` & `GOOGLE_CLIENT_SECRET`: Your OAuth credentials
+- `AUTHORIZED_USERS`: List of authorized email addresses
+- `DOMAIN`: Your production domain name
+
+### Initial Deployment
+
+```bash
+# Make deployment script executable
+chmod +x .gitea/deployment/deploy.sh
+
+# Run initial deployment
+./deploy.sh
+```
+
+## Step 4: SSH Key Setup
+
+### Generate SSH Key Pair (if needed)
+
+```bash
+# On your local machine or CI/CD runner
+ssh-keygen -t ed25519 -C "gitea-actions-deployment" -f ~/.ssh/gitea_deploy_key
+```
+
+### Add Public Key to Production Server
+
+```bash
+# Copy public key to production server
+ssh-copy-id -i ~/.ssh/gitea_deploy_key.pub your-user@your-production-server
+
+# Or manually add to authorized_keys
+cat ~/.ssh/gitea_deploy_key.pub | ssh your-user@your-production-server "mkdir -p ~/.ssh && cat >> ~/.ssh/authorized_keys"
+```
+
+### Add Private Key to Gitea Secrets
+
+```bash
+# Copy private key content
+cat ~/.ssh/gitea_deploy_key
+
+# Add this content to the SSH_PRIVATE_KEY secret in Gitea
+```
+
+## Step 5: Test the CI/CD Pipeline
+
+### Trigger First Pipeline
+
+<Steps>
+  <Step title="Make a change">
+    Make a small change to your code
+  </Step>
+  <Step title="Commit and push">
+    ```bash
+    git add .
+    git commit -m "Test CI/CD pipeline"
+    git push origin main
+    ```
+  </Step>
+  <Step title="Monitor the pipeline">
+    Check the Actions tab in your Gitea repository to see the pipeline running
+  </Step>
+</Steps>
+
+### Verify Deployment
+
+<Tabs>
+  <Tab title="Web Check">
+    Visit `https://your-domain.com` to verify the application is running
+  </Tab>
+  <Tab title="Logs">
+    SSH to server and run `docker compose logs -f`
+  </Tab>
+  <Tab title="Services">
+    Run `docker compose ps` to check service status
+  </Tab>
+</Tabs>
+
+## Workflow Overview
+
+### Automatic Triggers
+
+- **Push to main/master**: Triggers full CI/CD pipeline with production deployment
+- **Push to develop**: Triggers CI/CD pipeline with staging deployment (if configured)
+- **Pull requests**: Triggers testing and build validation only
+- **Schedule**: Security scans run weekly, cleanup runs weekly
+
+### Manual Triggers
+
+Navigate to Actions tab in your repository, click "Run workflow" on any workflow, select branch and run.
+
+## Monitoring and Maintenance
+
+### Check Application Health
+
+```bash
+# SSH to production server
+ssh your-user@your-production-server
+
+# Check service status
+docker compose ps
+
+# View logs
+docker compose logs -f trading_app
+
+# Check resource usage
+docker stats
+```
+
+### Database Backups
+
+Backups are automatically created during deployments and stored in `/opt/backups/stocks-app/`.
+
+```bash
+# Manual backup
+docker compose exec postgres pg_dump -U trading_user mining_wood | gzip > backup_$(date +%Y%m%d_%H%M%S).sql.gz
+
+# Restore from backup
+gunzip -c backup_file.sql.gz | docker compose exec -T postgres psql -U trading_user mining_wood
+```
+
+### SSL Certificate
+
+Caddy automatically handles SSL certificates. Check certificate status:
+
+```bash
+# Check certificate
+echo | openssl s_client -servername your-domain.com -connect your-domain.com:443 2>/dev/null | openssl x509 -noout -dates
+```
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Pipeline fails at SSH step">
+    - Verify SSH key is correctly formatted in secrets
+    - Check server SSH configuration
+    - Ensure server is accessible from internet
+  </Accordion>
+  
+  <Accordion title="Docker build fails">
+    - Check Dockerfile syntax
+    - Verify all dependencies in requirements.txt
+    - Check for file permission issues
+  </Accordion>
+  
+  <Accordion title="Application doesn't start">
+    - Check environment variables in .env
+    - Verify database is running: `docker compose logs postgres`
+    - Check application logs: `docker compose logs trading_app`
+  </Accordion>
+  
+  <Accordion title="SSL certificate issues">
+    - Ensure DNS is pointing to correct server
+    - Wait a few minutes for certificate provisioning
+    - Check Caddy logs: `docker compose logs caddy`
+  </Accordion>
+</AccordionGroup>
+
+## Security Best Practices
+
+<Warning>
+  Remember to regularly rotate secrets and monitor deployment logs for suspicious activity.
+</Warning>
+
+1. **Regularly rotate secrets** (SSH keys, database passwords)
+2. **Monitor deployment logs** for suspicious activity
+3. **Keep dependencies updated** (run security scans)
+4. **Use strong passwords** for all services
+5. **Backup regularly** and test restore procedures
+6. **Monitor server resources** and set up alerts
+
+## Customization
+
+You can customize the CI/CD pipeline by modifying files in `.gitea/workflows/`:
+
+- `main.yml`: Main CI/CD pipeline
+- `security.yml`: Security scanning
+- `cleanup.yml`: Resource cleanup and maintenance
+
+<Note>
+  Remember to test changes in a staging environment before deploying to production!
+</Note>

@@ -1,0 +1,69 @@
+---
+title: 'Trading Analysis'
+description: 'Analyze monthly trading performance and track profit/loss'
+---
+
+## Overview
+
+The Trading Analysis feature provides comprehensive monthly trading performance analysis with detailed profit/loss tracking, trade-by-trade breakdowns, and dividend income reporting.
+
+## Features
+
+<CardGroup cols={2}>
+  <Card title="Monthly Navigation" icon="calendar">
+    Navigate between months with trading data
+  </Card>
+  <Card title="P/L Display" icon="dollar-sign">
+    Color-coded profit/loss amounts
+  </Card>
+  <Card title="Trade Details" icon="list">
+    Detailed breakdown of individual trades
+  </Card>
+  <Card title="Dividend Tracking" icon="coins">
+    Track dividend income separately
+  </Card>
+</CardGroup>
+
+## Monthly Dashboard
+
+The dashboard displays:
+
+- **Total Trades**: Number of completed buy/sell transactions
+- **Winning Trades**: Number of profitable trades  
+- **Win Rate**: Percentage of winning trades
+- **Trading P/L**: Profit/loss from trades
+- **Dividend Income**: Total dividends received
+- **Total Return**: Combined trading P/L and dividends
+
+## Trade Details
+
+Click on any profit/loss amount to see detailed trade information:
+
+- **Symbol**: Stock ticker
+- **Buy Date**: Purchase date
+- **Sell Date**: Sale date
+- **Buy Price**: Purchase price per share
+- **Sell Price**: Sale price per share
+- **Volume**: Number of shares traded
+- **Profit/Loss**: Total profit or loss
+- **Return %**: Percentage return
+
+## Hybrid Matching Algorithm
+
+The system uses a hybrid matching algorithm that combines:
+
+1. **Broker Realized Gains/Losses** - Pre-calculated lot matches with definitive P/L
+2. **Transaction History** - Complete record of all buy/sell transactions
+
+This achieves **broker-level accuracy** for closed positions.
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="CSV Upload" icon="file-csv" href="/features/csv-upload">
+    Import your trading history
+  </Card>
+  <Card title="API Reference" icon="code" href="/api-reference/months">
+    Integrate with the Trading API
+  </Card>
+</CardGroup>

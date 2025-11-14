@@ -1,0 +1,59 @@
+---
+title: 'Get Trade Details'
+api: 'GET /api/trade-details/{month}'
+description: 'Retrieves detailed trade information for a specific month'
+---
+
+## Endpoint
+
+```
+GET /api/trade-details/{month}
+```
+
+## Path Parameters
+
+<ParamField path="month" type="string" required>
+  Month in YYYY-MM format (e.g., "2024-08")
+</ParamField>
+
+## Response
+
+Returns detailed trade information with buy/sell prices, volumes, and profit/loss calculations.
+
+## Example
+
+<CodeGroup>
+```bash cURL
+curl -X GET https://your-domain.com/api/trade-details/2024-08
+```
+
+```javascript JavaScript
+const response = await fetch('/api/trade-details/2024-08');
+const data = await response.json();
+
+console.log('Trades:', data.trades);
+```
+</CodeGroup>
+
+## Response Example
+
+```json
+{
+  "success": true,
+  "trades": [
+    {
+      "symbol": "AAPL",
+      "buy_date": "2024-08-01",
+      "sell_date": "2024-08-15",
+      "buy_price": 195.50,
+      "sell_price": 198.75,
+      "volume": 100,
+      "profit_per_share": 3.25,
+      "total_profit_loss": 325.00,
+      "return_percentage": 1.66,
+      "trade_result": "Win"
+    }
+  ],
+  "data_source": "postgresql"
+}
+```

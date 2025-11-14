@@ -1,97 +1,115 @@
 ---
-title: "Introduction"
-description: "Welcome to the new home for your documentation"
+title: "Trading Analysis Dashboard"
+description: "A comprehensive platform for analyzing trading performance and managing your investment portfolio"
 ---
 
-## Setting up
+## Welcome to Trading Analysis Dashboard
 
-Get your documentation site up and running in minutes.
+A modern, interactive web application for tracking and analyzing your stock trading performance with real-time portfolio management and comprehensive reporting.
 
-<Card
-  title="Start here"
-  icon="rocket"
-  href="/quickstart"
-  horizontal
->
-  Follow our three step quickstart guide.
-</Card>
-
-## Make it yours
-
-Design a docs site that looks great and empowers your users.
-
-<Columns cols={2}>
+<CardGroup cols={2}>
   <Card
-    title="Edit locally"
-    icon="pen-to-square"
-    href="/development"
+    title="Quick Start"
+    icon="rocket"
+    href="/quickstart"
   >
-    Edit your docs locally and preview them in real time.
+    Get up and running in minutes with our quick start guide
   </Card>
   <Card
-    title="Customize your site"
-    icon="palette"
-    href="/essentials/settings"
+    title="Portfolio Management"
+    icon="chart-line"
+    href="/features/portfolio-management"
   >
-    Customize the design and colors of your site to match your brand.
-  </Card>
-    <Card
-    title="Set up navigation"
-    icon="map"
-    href="/essentials/navigation"
-  >
-    Organize your docs to help users find what they need and succeed with your product.
+    Track your holdings with real-time price updates from Finnhub
   </Card>
   <Card
-    title="API documentation"
-    icon="terminal"
+    title="Trading Analysis"
+    icon="magnifying-glass-chart"
+    href="/features/trading-analysis"
+    >
+    Analyze monthly trading performance and track P&L
+  </Card>
+  <Card
+    title="API Reference"
+    icon="code"
     href="/api-reference/introduction"
   >
-    Auto-generate API documentation from OpenAPI specifications.
+    Integrate with our comprehensive RESTful API
   </Card>
-</Columns>
+</CardGroup>
 
-## Create beautiful pages
+## Key Features
 
-Everything you need to create world-class documentation.
+<AccordionGroup>
+  <Accordion title="📊 Portfolio Tracking" icon="chart-pie">
+    Track your stock, ETF, and mutual fund holdings with real-time price updates from Finnhub. View allocation charts, performance metrics, and gain/loss analysis.
+  </Accordion>
+  
+  <Accordion title="📈 Trading Analysis" icon="chart-line">
+    Analyze monthly trading performance with detailed P&L breakdowns, win/loss ratios, and trade-by-trade analysis. View comprehensive reports with dividend tracking.
+  </Accordion>
+  
+  <Accordion title="🔐 Secure Authentication" icon="lock">
+    Google OAuth 2.0 integration with user-specific data isolation. Support for multiple users with separate brokerage accounts.
+  </Accordion>
+  
+  <Accordion title="📁 CSV Upload" icon="file-csv">
+    Easy CSV import with drag-and-drop support. Real-time processing feedback and upload history tracking.
+  </Accordion>
+  
+  <Accordion title="🚀 Docker Deployment" icon="docker">
+    Complete Docker Compose setup with PostgreSQL database, Caddy reverse proxy, and automatic HTTPS with Let's Encrypt.
+  </Accordion>
+  
+  <Accordion title="⚙️ CI/CD Ready" icon="robot">
+    Full Gitea Actions workflow for automated testing, building, and deployment with security scanning and rollback capabilities.
+  </Accordion>
+</AccordionGroup>
 
-<Columns cols={2}>
-  <Card
-    title="Write with MDX"
-    icon="pen-fancy"
-    href="/essentials/markdown"
-  >
-    Use MDX to style your docs pages.
-  </Card>
-  <Card
-    title="Code samples"
-    icon="code"
-    href="/essentials/code"
-  >
-    Add sample code to demonstrate how to use your product.
-  </Card>
-  <Card
-    title="Images"
-    icon="image"
-    href="/essentials/images"
-  >
-    Display images and other media.
-  </Card>
-  <Card
-    title="Reusable snippets"
-    icon="recycle"
-    href="/essentials/reusable-snippets"
-  >
-    Write once and reuse across your docs.
-  </Card>
-</Columns>
+## Technology Stack
 
-## Need inspiration?
+<CardGroup cols={3}>
+  <Card title="Flask" icon="python">
+    Python web framework
+  </Card>
+  <Card title="PostgreSQL" icon="database">
+    Relational database
+  </Card>
+  <Card title="Docker" icon="docker">
+    Containerization
+  </Card>
+  <Card title="Caddy" icon="server">
+    Reverse proxy & HTTPS
+  </Card>
+  <Card title="Finnhub" icon="chart-candlestick">
+    Real-time market data
+  </Card>
+  <Card title="OAuth 2.0" icon="shield-check">
+    Secure authentication
+  </Card>
+</CardGroup>
+
+## Getting Started
+
+<Steps>
+  <Step title="Prerequisites">
+    Install Docker and Docker Compose, and obtain a Finnhub API key
+  </Step>
+  <Step title="Clone & Configure">
+    Clone the repository and set up your environment variables
+  </Step>
+  <Step title="Deploy">
+    Run the deployment script to start all services
+  </Step>
+  <Step title="Upload Data">
+    Import your trading data via CSV upload
+  </Step>
+</Steps>
 
 <Card
-  title="See complete examples"
-  icon="stars"
-  href="https://mintlify.com/customers"
+  title="Ready to dive in?"
+  icon="book-open"
+  href="/quickstart"
 >
-  Browse our showcase of exceptional documentation sites.
+  Check out our comprehensive quickstart guide to get your dashboard running in minutes
 </Card>

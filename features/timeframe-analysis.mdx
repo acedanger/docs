@@ -1,0 +1,92 @@
+---
+title: 'Timeframe Analysis'
+description: 'Analyze trading performance across custom time periods'
+---
+
+## Overview
+
+The Timeframe Analysis feature allows you to analyze trading performance across different time periods with comprehensive P/L summaries including both trading profits/losses and dividend income.
+
+## Time Period Selection
+
+<CardGroup cols={2}>
+  <Card title="All Time" icon="infinity">
+    Analyzes all available trading data
+  </Card>
+  <Card title="Current Month" icon="calendar-day">
+    Current calendar month performance
+  </Card>
+  <Card title="Year to Date" icon="calendar-check">
+    Performance from January 1st to today
+  </Card>
+  <Card title="Past Year" icon="calendar-days">
+    Rolling 365-day performance
+  </Card>
+  <Card title="Custom Period" icon="calendar-range">
+    Select your own date range
+  </Card>
+</CardGroup>
+
+## Key Metrics
+
+- **Period**: Exact date range for selected timeframe
+- **Total P/L**: Combined trading profit/loss and dividends
+- **Trading P/L**: Profit/loss from completed trades only
+- **Dividends**: Total dividend income received
+- **Closed Trades**: Number of completed buy/sell transactions
+- **Win Rate**: Percentage of profitable trades
+
+## Summary Breakdowns
+
+### Weekly Summary
+
+Groups data by calendar week showing:
+- Trading P/L per week
+- Dividends per week
+- Total P/L per week
+- Number of trades per week
+
+### Monthly Summary
+
+Groups data by calendar month showing:
+- Trading P/L per month
+- Dividends per month
+- Total P/L per month
+- Number of trades per month
+
+## Open Positions
+
+Displays current open positions (stocks bought but not yet sold):
+- Symbol and number of shares
+- Notes that open positions are excluded from P/L calculations
+
+## Usage
+
+<Steps>
+  <Step title="Navigate to Summary">
+    Go to the Summary page and click "By Timeframe"
+  </Step>
+  
+  <Step title="Select Period">
+    Choose from dropdown - date fields auto-populate
+  </Step>
+  
+  <Step title="Custom Dates (Optional)">
+    Manually adjust start/end dates for fine-tuning
+  </Step>
+  
+  <Step title="Apply">
+    Click "Apply Dates" for custom date ranges
+  </Step>
+</Steps>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Trading Analysis" icon="chart-line" href="/features/trading-analysis">
+    View monthly trading performance
+  </Card>
+  <Card title="API Reference" icon="code" href="/api-reference/timeframe">
+    Use the Timeframe API
+  </Card>
+</CardGroup>

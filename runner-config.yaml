@@ -1,0 +1,15 @@
+log:
+  level: info
+
+runner:
+  capacity: 1
+  timeout: 3h
+
+container:
+  # Use the gitea network so job containers can resolve the 'server' hostname
+  network: gitea_gitea
+  privileged: false
+  options: ""
+  workdir_parent: ""
+  valid_volumes: []
+  docker_host: ""

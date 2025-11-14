@@ -1,0 +1,153 @@
+---
+title: 'Portfolio Management'
+description: 'Track your stock, ETF, and mutual fund holdings with real-time price updates'
+---
+
+## Overview
+
+The Portfolio Management feature allows you to track your current stock, ETF, and mutual fund holdings with real-time price updates from Finnhub.io. View comprehensive metrics, allocation charts, and performance analysis all in one place.
+
+## Key Features
+
+<CardGroup cols={2}>
+  <Card title="Real-time Pricing" icon="clock">
+    Automatic price updates from Finnhub API
+  </Card>
+  <Card title="Multi-Asset Support" icon="layer-group">
+    Track stocks, ETFs, and mutual funds
+  </Card>
+  <Card title="Visual Analytics" icon="chart-pie">
+    Interactive allocation and performance charts
+  </Card>
+  <Card title="CSV Import" icon="file-csv">
+    Bulk import holdings from CSV files
+  </Card>
+</CardGroup>
+
+## Quick Start
+
+<Steps>
+  <Step title="Get Finnhub API Key">
+    Register at [Finnhub.io](https://finnhub.io/register) and copy your API key
+  </Step>
+  
+  <Step title="Configure Environment">
+    Add your API key to `.env`:
+    ```bash
+    FINNHUB_API_KEY=your_api_key_here
+    ```
+  </Step>
+  
+  <Step title="Add Holdings">
+    Use the web interface to add holdings manually or upload a CSV file
+  </Step>
+  
+  <Step title="Refresh Prices">
+    Click "Refresh Prices" to fetch current market prices
+  </Step>
+</Steps>
+
+## Adding Holdings
+
+### Manual Entry
+
+<Steps>
+  <Step title="Click Add Holding">
+    Navigate to the Portfolio page and click the "Add Holding" button
+  </Step>
+  
+  <Step title="Fill in Details">
+    - **Symbol**: Stock ticker (e.g., AAPL, MSFT)
+    - **Type**: Select stock, ETF, or mutual_fund
+    - **Shares**: Number of shares owned
+    - **Average Cost**: Your average cost per share
+    - **Notes**: Optional notes about the holding
+  </Step>
+  
+  <Step title="Save">
+    Click "Save" to add the holding to your portfolio
+  </Step>
+</Steps>
+
+### CSV Upload
+
+Upload a CSV file with the following format:
+
+```csv
+symbol,type,shares,average_cost,notes
+AAPL,stock,100,150.50,Tech holding
+VOO,etf,50,400.00,S&P 500 ETF
+VTSAX,mutual_fund,500,120.25,Index fund
+```
+
+<Info>
+  See the [CSV Upload guide](/features/csv-upload) for detailed formatting instructions.
+</Info>
+
+## Portfolio Metrics
+
+The dashboard displays four key summary cards:
+
+| Metric | Description |
+|--------|-------------|
+| **Total Value** | Current market value of all holdings |
+| **Total Cost** | Total amount invested (shares × average cost) |
+| **Total Gain/Loss** | Dollar amount gained or lost |
+| **Total Return** | Percentage return on investment |
+
+## Charts
+
+### Allocation Chart
+
+Interactive doughnut chart showing:
+- Percentage of portfolio in each holding
+- Dollar amounts on hover
+- Click legend to show/hide holdings
+
+### Performance Chart
+
+Bar chart displaying:
+- Gain/loss for each holding
+- Green bars for profitable holdings
+- Red bars for losing holdings
+
+## Managing Holdings
+
+### Edit a Holding
+
+1. Click the edit (✏️) button next to any holding
+2. Update the fields you want to change
+3. Click "Save"
+
+<Warning>
+  You cannot change the symbol of an existing holding. To change a symbol, delete the holding and add a new one.
+</Warning>
+
+### Delete a Holding
+
+1. Click the delete (🗑️) button next to any holding
+2. Confirm the deletion
+
+## Price Updates
+
+Click the **"Refresh Prices"** button to fetch the latest market prices for all holdings. Prices are also automatically refreshed when viewing the page if the last update was more than 15 minutes ago.
+
+### Rate Limiting
+
+The free Finnhub API tier allows:
+- **60 requests per minute**
+- **Real-time US stock quotes**
+- **Delayed mutual fund prices** (typically 15-30 minutes)
+
+The application intelligently manages API requests to stay within these limits.
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Trading Analysis" icon="chart-line" href="/features/trading-analysis">
+    Analyze your historical trading performance
+  </Card>
+  <Card title="API Reference" icon="code" href="/api-reference/portfolio-holdings">
+    Integrate with the Portfolio API
+  </Card>
+</CardGroup>

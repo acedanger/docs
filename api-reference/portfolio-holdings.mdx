@@ -1,0 +1,136 @@
+---
+title: 'Portfolio Holdings'
+api: 'GET /api/portfolio/holdings'
+description: 'Get, add, update, or delete portfolio holdings'
+---
+
+## Get All Holdings
+
+```
+GET /api/portfolio/holdings
+```
+
+Returns all holdings for the current user with current prices and calculated metrics.
+
+### Response Example
+
+```json
+{
+  "success": true,
+  "holdings": [
+    {
+      "id": 1,
+      "symbol": "AAPL",
+      "holding_type": "stock",
+      "shares": 100,
+      "average_cost": 150.50,
+      "current_price": 175.25,
+      "total_cost": 15050.00,
+      "current_value": 17525.00,
+      "gain_loss": 2475.00,
+      "return_percentage": 16.44,
+      "last_updated": "2024-11-14T10:30:00Z"
+    }
+  ]
+}
+```
+
+## Add a Holding
+
+```
+POST /api/portfolio/holdings
+```
+
+### Request Body
+
+<ParamField body="symbol" type="string" required>
+  Stock ticker symbol (e.g., "AAPL")
+</ParamField>
+
+<ParamField body="holding_type" type="string" required>
+  Type: "stock", "etf", or "mutual_fund"
+</ParamField>
+
+<ParamField body="shares" type="number" required>
+  Number of shares owned
+</ParamField>
+
+<ParamField body="average_cost" type="number" required>
+  Average cost per share
+</ParamField>
+
+<ParamField body="notes" type="string">
+  Optional notes about the holding
+</ParamField>
+
+### Example
+
+<CodeGroup>
+```bash cURL
+curl -X POST https://your-domain.com/api/portfolio/holdings \
+  -H "Content-Type: application/json" \
+  -d '{
+    "symbol": "AAPL",
+    "holding_type": "stock",
+    "shares": 100,
+    "average_cost": 150.50,
+    "notes": "Tech holding"
+  }'
+```
+
+```javascript JavaScript
+const response = await fetch('/api/portfolio/holdings', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    symbol: 'AAPL',
+    holding_type: 'stock',
+    shares: 100,
+    average_cost: 150.50,
+    notes: 'Tech holding'
+  })
+});
+
+const data = await response.json();
+```
+</CodeGroup>
+
+## Update a Holding
+
+```
+PUT /api/portfolio/holdings/{id}
+```
+
+### Path Parameters
+
+<ParamField path="id" type="integer" required>
+  Holding ID to update
+</ParamField>
+
+### Request Body
+
+<ParamField body="shares" type="number">
+  Updated number of shares
+</ParamField>
+
+<ParamField body="average_cost" type="number">
+  Updated average cost per share
+</ParamField>
+
+<ParamField body="notes" type="string">
+  Updated notes
+</ParamField>
+
+## Delete a Holding
+
+```
+DELETE /api/portfolio/holdings/{id}
+```
+
+### Path Parameters
+
+<ParamField path="id" type="integer" required>
+  Holding ID to delete
+</ParamField>

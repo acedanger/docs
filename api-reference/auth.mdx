@@ -1,0 +1,141 @@
+---
+title: 'Authentication'
+description: 'OAuth 2.0 authentication endpoints and flow'
+---
+
+## Overview
+
+The Trading Analysis Dashboard uses Google OAuth 2.0 for secure authentication. All API endpoints require an authenticated session.
+
+## Authentication Flow
+
+<Steps>
+  <Step title="User visits application">
+    Unauthenticated users are redirected to the login page
+  </Step>
+  
+  <Step title="Click Sign in with Google">
+    User initiates OAuth flow by clicking the Google sign-in button
+  </Step>
+  
+  <Step title="Google authorization">
+    User is redirected to Google to authorize the application
+  </Step>
+  
+  <Step title="Callback">
+    Google redirects back to the application with authorization code
+  </Step>
+  
+  <Step title="Session created">
+    Application exchanges code for tokens and creates a secure session
+  </Step>
+  
+  <Step title="Access granted">
+    User is redirected to the dashboard with an authenticated session
+  </Step>
+</Steps>
+
+## Endpoints
+
+### Login Page
+
+```
+GET /auth/login
+```
+
+Displays the login page for unauthenticated users.
+
+### Initiate OAuth
+
+```
+GET /login
+```
+
+Redirects user to Google OAuth authorization page.
+
+### OAuth Callback
+
+```
+GET /auth/callback
+```
+
+Handles the OAuth callback from Google and creates user session.
+
+**Query Parameters:**
+- `code` (string): Authorization code from OAuth provider
+- `state` (string): State parameter for security
+
+### Logout
+
+```
+GET /logout
+```
+
+Clears user session and logs out the user.
+
+### User Profile
+
+```
+GET /auth/profile
+```
+
+Displays user profile information (requires authentication).
+
+## Session Management
+
+- Sessions are stored server-side using Flask sessions
+- Session cookies are HTTP-only and secure (in production)
+- Sessions expire after a period of inactivity
+- Users must re-authenticate after session expiration
+
+## User Authorization
+
+Access is controlled by the `AUTHORIZED_USERS` environment variable:
+
+```env
+AUTHORIZED_USERS=user1@example.com,user2@example.com,user3@example.com
+```
+
+Only users with email addresses in this list can access the application after authenticating with Google.
+
+## Error Responses
+
+### 401 Unauthorized
+
+```json
+{
+  "success": false,
+  "error": "Authentication required",
+  "redirect_to_login": true
+}
+```
+
+### 403 Forbidden
+
+```json
+{
+  "success": false,
+  "error": "Access denied. User not authorized."
+}
+```
+
+## Security Best Practices
+
+<CardGroup cols={2}>
+  <Card title="HTTPS Only" icon="lock">
+    Always use HTTPS in production for OAuth callbacks
+  </Card>
+  <Card title="Secure Sessions" icon="shield-check">
+    Session cookies are HTTP-only and secure
+  </Card>
+  <Card title="User Whitelist" icon="users">
+    Only authorized email addresses can access the application
+  </Card>
+  <Card title="Token Security" icon="key">
+    OAuth tokens are never exposed to the client
+  </Card>
+</CardGroup>
+
+## Configuration
+
+See the [SSO Setup Guide](/guides/setup/sso) for detailed configuration instructions.

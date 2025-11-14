@@ -1,0 +1,393 @@
+---
+title: 'Caddy Configuration'
+description: 'Configure Caddy reverse proxy for different deployment scenarios'
+---
+
+## Overview
+
+Caddy is a powerful web server that automatically handles HTTPS with Let's Encrypt. This guide explains how to configure Caddy for different deployment scenarios.
+
+## Local Development
+
+The default `Caddyfile` is configured for local development:
+
+```caddy Caddyfile
+localhost {
+    reverse_proxy trading_app:5000
+    encode gzip
+    header {
+        X-Content-Type-Options nosniff
+        X-Frame-Options DENY
+        X-XSS-Protection "1; mode=block"
+        Referrer-Policy "strict-origin-when-cross-origin"
+        -Server
+    }
+}
+```
+
+<Info>
+  Access your app at: `http://localhost`
+</Info>
+
+## Production Deployment
+
+### Step 1: Domain Setup
+
+<Steps>
+  <Step title="Configure DNS">
+    Point your domain's DNS A record to your server's IP
+  </Step>
+  
+  <Step title="Copy Production Template">
+    ```bash
+    cp Caddyfile.production Caddyfile
+    ```
+  </Step>
+  
+  <Step title="Edit Caddyfile">
+    Replace `your-domain.com` with your actual domain
+  </Step>
+</Steps>
+
+### Step 2: Environment Configuration
+
+Update your `.env` file:
+
+```env .env
+DOMAIN=your-domain.com
+FLASK_ENV=production
+```
+
+### Step 3: Deploy
+
+```bash
+docker-compose up -d
+```
+
+<Check>
+  Caddy will automatically:
+  - Obtain SSL certificates from Let's Encrypt
+  - Handle HTTP to HTTPS redirects
+  - Renew certificates automatically
+</Check>
+
+## Configuration Options
+
+### Basic Reverse Proxy
+
+```caddy
+your-domain.com {
+    reverse_proxy trading_app:5000
+}
+```
+
+### With Compression and Security Headers
+
+```caddy
+your-domain.com {
+    reverse_proxy trading_app:5000
+    encode gzip
+    
+    header {
+        X-Content-Type-Options nosniff
+        X-Frame-Options DENY
+        Strict-Transport-Security "max-age=31536000"
+    }
+}
+```
+
+### Static File Caching
+
+```caddy
+your-domain.com {
+    reverse_proxy trading_app:5000
+    
+    @static path /static/*
+    handle @static {
+        header Cache-Control "public, max-age=3600"
+        reverse_proxy trading_app:5000
+    }
+}
+```
+
+### Rate Limiting
+
+```caddy
+your-domain.com {
+    rate_limit {
+        zone general 10r/s
+    }
+    reverse_proxy trading_app:5000
+}
+```
+
+### Basic Authentication
+
+```caddy
+admin.your-domain.com {
+    basicauth {
+        admin $2a$14$hashed_password_here
+    }
+    reverse_proxy trading_app:5000
+}
+```
+
+## SSL/TLS Configuration
+
+### Automatic HTTPS (Default)
+
+Caddy automatically obtains certificates from Let's Encrypt:
+
+```caddy
+your-domain.com {
+    reverse_proxy trading_app:5000
+}
+```
+
+<Note>
+  No additional configuration needed! Caddy handles everything automatically.
+</Note>
+
+### Custom Certificates
+
+```caddy
+your-domain.com {
+    tls /path/to/cert.pem /path/to/key.pem
+    reverse_proxy trading_app:5000
+}
+```
+
+### Internal/Self-Signed Certificates
+
+```caddy
+your-domain.com {
+    tls internal
+    reverse_proxy trading_app:5000
+}
+```
+
+## Monitoring and Logging
+
+### Access Logs
+
+```caddy
+your-domain.com {
+    reverse_proxy trading_app:5000
+    
+    log {
+        output file /var/log/caddy/access.log
+        format json
+    }
+}
+```
+
+### Error Handling
+
+```caddy
+your-domain.com {
+    reverse_proxy trading_app:5000
+    
+    handle_errors {
+        @404 expression {http.error.status_code} == 404
+        handle @404 {
+            rewrite * /404.html
+            reverse_proxy trading_app:5000
+        }
+    }
+}
+```
+
+## Advanced Features
+
+### Multiple Domains
+
+```caddy
+site1.com, site2.com {
+    reverse_proxy trading_app:5000
+}
+```
+
+### Subdomain Routing
+
+```caddy
+api.your-domain.com {
+    reverse_proxy trading_app:5000/api
+}
+
+app.your-domain.com {
+    reverse_proxy trading_app:5000
+}
+```
+
+### Load Balancing
+
+```caddy
+your-domain.com {
+    reverse_proxy trading_app1:5000 trading_app2:5000 {
+        lb_policy round_robin
+        health_path /health
+    }
+}
+```
+
+## Troubleshooting
+
+### Check Caddy Status
+
+```bash
+docker-compose logs caddy
+```
+
+### Certificate Issues
+
+```bash
+# Check certificate status
+docker-compose exec caddy caddy list-certificates
+
+# Force certificate renewal
+docker-compose exec caddy caddy reload --config /etc/caddy/Caddyfile
+```
+
+### Configuration Validation
+
+```bash
+# Validate Caddyfile syntax
+docker-compose exec caddy caddy validate --config /etc/caddy/Caddyfile
+```
+
+### Common Issues
+
+<AccordionGroup>
+  <Accordion title="Port 80/443 already in use">
+    ```bash
+    # Check what's using the ports
+    netstat -tlnp | grep :80
+    netstat -tlnp | grep :443
+    ```
+    
+    Stop the conflicting service or change Caddy's ports in docker-compose.yml
+  </Accordion>
+  
+  <Accordion title="DNS not pointing to server">
+    ```bash
+    # Check DNS resolution
+    nslookup your-domain.com
+    ```
+    
+    Verify your domain's A record points to the correct IP address
+  </Accordion>
+  
+  <Accordion title="Let's Encrypt rate limits">
+    Use staging environment for testing:
+    
+    ```caddy
+    your-domain.com {
+        tls {
+            ca https://acme-staging-v02.api.letsencrypt.org/directory
+        }
+        reverse_proxy trading_app:5000
+    }
+    ```
+  </Accordion>
+  
+  <Accordion title="Certificate validation fails">
+    - Ensure port 80 is accessible from the internet
+    - Verify DNS is propagated: `dig your-domain.com`
+    - Check firewall rules allow incoming connections
+    - Review Caddy logs for specific errors
+  </Accordion>
+</AccordionGroup>
+
+## Performance Tuning
+
+### Enable HTTP/2 and HTTP/3
+
+```caddy
+your-domain.com {
+    protocols h1 h2 h3
+    reverse_proxy trading_app:5000
+}
+```
+
+### Connection Limits
+
+```caddy
+your-domain.com {
+    reverse_proxy trading_app:5000 {
+        transport http {
+            max_conns_per_host 100
+        }
+    }
+}
+```
+
+### Timeout Configuration
+
+```caddy
+your-domain.com {
+    reverse_proxy trading_app:5000 {
+        transport http {
+            read_timeout 30s
+            write_timeout 30s
+        }
+    }
+}
+```
+
+## Security Best Practices
+
+<CardGroup cols={2}>
+  <Card title="Strong TLS" icon="lock">
+    Use TLS 1.2+ with strong cipher suites (Caddy's default)
+  </Card>
+  <Card title="Security Headers" icon="shield-halved">
+    Add security headers like CSP, HSTS, X-Frame-Options
+  </Card>
+  <Card title="Rate Limiting" icon="gauge-high">
+    Implement rate limiting to prevent abuse
+  </Card>
+  <Card title="Access Control" icon="user-shield">
+    Use basic auth or OAuth for sensitive routes
+  </Card>
+</CardGroup>
+
+### Recommended Security Configuration
+
+```caddy
+your-domain.com {
+    reverse_proxy trading_app:5000
+    
+    encode gzip
+    
+    header {
+        # Security headers
+        Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+        X-Content-Type-Options "nosniff"
+        X-Frame-Options "DENY"
+        X-XSS-Protection "1; mode=block"
+        Referrer-Policy "strict-origin-when-cross-origin"
+        Permissions-Policy "geolocation=(), microphone=(), camera=()"
+        
+        # Hide server info
+        -Server
+        -X-Powered-By
+    }
+}
+```
+
+## Additional Resources
+
+<CardGroup cols={2}>
+  <Card title="Caddy Documentation" icon="book" href="https://caddyserver.com/docs/">
+    Official Caddy documentation
+  </Card>
+  <Card title="Caddyfile Syntax" icon="code" href="https://caddyserver.com/docs/caddyfile">
+    Learn Caddyfile syntax
+  </Card>
+  <Card title="Automatic HTTPS" icon="certificate" href="https://caddyserver.com/docs/automatic-https">
+    How Caddy handles HTTPS automatically
+  </Card>
+  <Card title="Docker Deployment" icon="docker" href="/guides/deployment/docker">
+    Back to Docker deployment guide
+  </Card>
+</CardGroup>

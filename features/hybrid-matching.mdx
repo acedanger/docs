@@ -1,0 +1,111 @@
+---
+title: 'Hybrid Matching Algorithm'
+description: 'Broker-level accuracy for profit/loss and wash sale tracking'
+---
+
+## Overview
+
+The hybrid matching algorithm combines two data sources to provide the most accurate profit/loss and wash sale tracking:
+
+1. **Broker's Realized Gains/Losses CSV** - Pre-calculated lot matches with definitive P&L
+2. **Transaction History CSV** - Complete record of all buy/sell transactions
+
+## Key Benefits
+
+<CardGroup cols={2}>
+  <Card title="Broker-Level Accuracy" icon="bullseye">
+    Uses broker's proprietary matching logic
+  </Card>
+  <Card title="Wash Sale Detection" icon="flag">
+    Accurate wash sale flags from broker
+  </Card>
+  <Card title="FIFO Fallback" icon="layer-group">
+    Estimates P/L when broker data unavailable
+  </Card>
+  <Card title="Complete Coverage" icon="check-double">
+    Handles all transaction types
+  </Card>
+</CardGroup>
+
+## How It Works
+
+<Steps>
+  <Step title="Load Broker Lots">
+    System loads pre-calculated lot matches from broker's realized gains/losses CSV
+  </Step>
+  
+  <Step title="Process Sells">
+    For each sell transaction, checks if corresponding broker lot exists
+  </Step>
+  
+  <Step title="Use Broker Data">
+    If lot found, uses broker's P/L, wash sale flag, and cost basis
+  </Step>
+  
+  <Step title="FIFO Estimate">
+    If no broker lot, applies FIFO (First In, First Out) matching logic
+  </Step>
+</Steps>
+
+## Data Sources
+
+### Broker Realized Gains/Losses
+
+Contains:
+- Opened date (purchase date)
+- Closed date (sale date)
+- Quantity sold from specific lot
+- Cost basis and proceeds
+- Gain/loss amount (pre-calculated)
+- Wash sale flag
+- Disallowed loss amount
+- Term (Short/Long)
+
+### Transaction History
+
+Contains:
+- All buy/sell transactions
+- Transaction dates
+- Symbol, quantity, price
+- Commissions and fees
+
+## Matching Criteria
+
+The system matches broker lots to transactions using:
+
+- **Symbol**: Must match exactly
+- **Date**: Must match the transaction date
+- **Quantity**: With tolerance for fractional shares
+
+## Data Source Indicators
+
+<Tabs>
+  <Tab title="Broker-Verified">
+    ✓ **Broker-verified badge**
+    
+    All trades matched to broker lots with definitive P/L
+  </Tab>
+  
+  <Tab title="FIFO Estimate">
+    ⚠️ **FIFO estimate badge**
+    
+    Trades matched using FIFO logic (no broker lot available)
+  </Tab>
+  
+  <Tab title="Mixed Sources">
+    ✓ **Broker-verified** + ⚠️ **FIFO estimate**
+    
+    Month contains both broker-verified and FIFO-estimated trades
+  </Tab>
+</Tabs>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="CSV Upload" icon="file-csv" href="/features/csv-upload">
+    Learn how to upload both CSV files
+  </Card>
+  <Card title="Trading Analysis" icon="chart-line" href="/features/trading-analysis">
+    View your matched trades
+  </Card>
+</CardGroup>

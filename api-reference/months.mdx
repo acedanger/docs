@@ -1,0 +1,116 @@
+---
+title: 'Get Available Months'
+api: 'GET /api/months'
+description: 'Retrieves a list of all months that have trading data available'
+---
+
+## Endpoint
+
+```
+GET /api/months
+```
+
+## Authentication
+
+Requires OAuth 2.0 authentication via session cookies.
+
+## Parameters
+
+None
+
+## Response
+
+<ResponseField name="success" type="boolean" required>
+  Indicates if the request was successful
+</ResponseField>
+
+<ResponseField name="months" type="array" required>
+  List of month objects
+  
+  <Expandable title="Month Object">
+    <ResponseField name="month" type="string">
+      Month in YYYY-MM format
+    </ResponseField>
+    
+    <ResponseField name="total_return_with_dividends" type="number">
+      Total return including dividends for that month
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="data_source" type="string" required>
+  Database source (always "postgresql")
+</ResponseField>
+
+## Example
+
+<CodeGroup>
+```bash cURL
+curl -X GET https://your-domain.com/api/months \
+  -H "Cookie: session=your_session_cookie"
+```
+
+```javascript JavaScript
+const response = await fetch('/api/months');
+const data = await response.json();
+
+if (data.success) {
+  console.log('Available months:', data.months);
+}
+```
+
+```python Python
+import requests
+
+response = requests.get('http://localhost:5000/api/months')
+data = response.json()
+
+if data['success']:
+    for month in data['months']:
+        print(f"{month['month']}: ${month['total_return_with_dividends']}")
+```
+</CodeGroup>
+
+## Response Example
+
+```json
+{
+  "success": true,
+  "months": [
+    {
+      "month": "2024-08",
+      "total_return_with_dividends": 1250.75
+    },
+    {
+      "month": "2024-07",
+      "total_return_with_dividends": -320.50
+    },
+    {
+      "month": "2024-06",
+      "total_return_with_dividends": 890.25
+    }
+  ],
+  "data_source": "postgresql"
+}
+```
+
+## Error Responses
+
+<ResponseExample>
+```json Database Connection Failed
+{
+  "success": false,
+  "error": "Database connection failed"
+}
+```
+</ResponseExample>
+
+<ResponseExample>
+```json Unauthorized
+{
+  "success": false,
+  "error": "Authentication required",
+  "redirect_to_login": true
+}
+```
+</ResponseExample>

@@ -1,0 +1,426 @@
+---
+title: 'Docker Deployment'
+description: 'Deploy the Trading Analysis Dashboard using Docker containers'
+---
+
+## Quick Start
+
+<Steps>
+  <Step title="Install Prerequisites">
+    Install [Docker Desktop](https://www.docker.com/products/docker-desktop/) (includes Docker Compose)
+  </Step>
+  
+  <Step title="Run Deployment Script">
+    <Tabs>
+      <Tab title="Windows">
+        ```batch
+        deploy.bat
+        ```
+      </Tab>
+      <Tab title="Linux/macOS">
+        ```bash
+        chmod +x deploy.sh
+        ./deploy.sh
+        ```
+      </Tab>
+    </Tabs>
+  </Step>
+  
+  <Step title="Manual Deployment (Alternative)">
+    ```bash
+    # Copy environment file
+    cp .env.docker .env
+    
+    # Build and start services
+    docker compose up -d
+    
+    # Check status
+    docker compose ps
+    ```
+  </Step>
+</Steps>
+
+## Services Overview
+
+The deployment includes these services:
+
+| Service | Port | Description |
+|---------|------|-------------|
+| **trading_app** | 8080 | Main Flask application |
+| **postgres** | 5432 | PostgreSQL database |
+| **caddy** | 80, 443 | Reverse proxy with automatic HTTPS |
+
+## Access URLs
+
+<CardGroup cols={2}>
+  <Card title="Production" icon="globe">
+    https://performance.miningwood.com
+  </Card>
+  <Card title="Main Application" icon="laptop">
+    http://localhost:8080
+  </Card>
+  <Card title="Via Caddy" icon="server">
+    http://localhost
+  </Card>
+  <Card title="Database" icon="database">
+    localhost:5432
+  </Card>
+</CardGroup>
+
+## Docker Compose Configuration
+
+The complete `docker-compose.yml` file for the application:
+
+```yaml docker-compose.yml
+services:
+  server:
+    image: docker.gitea.com/gitea:latest
+    container_name: gitea
+    environment:
+      - USER_UID=${USER_UID}
+      - USER_GID=${USER_GID}
+      - GITEA__database__DB_TYPE=postgres
+      - GITEA__database__HOST=db:5432
+      - GITEA__database__NAME=${POSTGRES_USER}
+      - GITEA__database__USER=${POSTGRES_USER}
+      - GITEA__database__PASSWD=${POSTGRES_PASSWORD}
+    restart: always
+    networks:
+      - gitea
+    volumes:
+      - gitea:/data
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    ports:
+      - ${GITEA_HTTP_PORT:-3500}:3000
+      - ${GITEA_SSH_PORT:-2229}:22
+    depends_on:
+      - db
+    labels:
+      - diun.enable=true
+    healthcheck:
+      test:
+        - CMD
+        - curl
+        - -f
+        - http://localhost
+      interval: 10s
+      retries: 3
+      start_period: 30s
+      timeout: 10s
+      
+  db:
+    image: docker.io/library/postgres:14
+    restart: always
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+    networks:
+      - gitea
+    volumes:
+      - postgres:/var/lib/postgresql/data
+
+  runner:
+    image: gitea/act_runner:latest
+    container_name: gitea-runner
+    restart: always
+    networks:
+      - gitea
+    volumes:
+      - runner:/data
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./runner-config.yaml:/data/config.yaml:ro
+    environment:
+      - GITEA_INSTANCE_URL=http://server:3000
+      - GITEA_RUNNER_REGISTRATION_TOKEN=${GITEA_RUNNER_REGISTRATION_TOKEN}
+      - GITEA_RUNNER_NAME=docker-runner
+      - CONFIG_FILE=/data/config.yaml
+    command: >
+      sh -c "
+      if [ ! -f /data/.runner ]; then
+        act_runner register --no-interactive --instance http://server:3000 --token $${GITEA_RUNNER_REGISTRATION_TOKEN} --name docker-runner;
+      fi;
+      act_runner --config /data/config.yaml daemon
+      "
+    depends_on:
+      - server
+    labels:
+      - diun.enable=true
+
+networks:
+  gitea:
+    external: false
+    
+volumes:
+  gitea:
+  postgres:
+  runner:
+```
+
+## Configuration
+
+### Environment Variables
+
+Edit the `.env` file to customize your deployment:
+
+```env .env
+# Database Configuration
+DB_HOST=postgres
+DB_PORT=5432
+DB_NAME=mining_wood
+DB_USER=trading_user
+DB_PASSWORD=your_secure_password
+
+# Flask Configuration
+FLASK_SECRET_KEY=your-super-secret-key-change-this
+FLASK_ENV=production
+
+# Gitea Configuration
+USER_UID=1000
+USER_GID=1000
+POSTGRES_USER=gitea
+POSTGRES_PASSWORD=gitea_password
+POSTGRES_DB=gitea
+GITEA_HTTP_PORT=3500
+GITEA_SSH_PORT=2229
+GITEA_RUNNER_REGISTRATION_TOKEN=your_token_here
+```
+
+<Warning>
+  Always change default passwords before deploying to production!
+</Warning>
+
+### SSL/HTTPS Setup with Caddy
+
+Caddy provides automatic HTTPS with Let's Encrypt:
+
+<Tabs>
+  <Tab title="Local Development">
+    No setup needed - uses HTTP by default
+  </Tab>
+  
+  <Tab title="Production with Domain">
+    ```bash
+    # Edit Caddyfile and replace localhost with your domain
+    cp Caddyfile.production Caddyfile
+    # Edit the domain in Caddyfile: your-domain.com
+    ```
+    
+    Caddy will automatically get and renew SSL certificates!
+  </Tab>
+</Tabs>
+
+## Database Setup
+
+The PostgreSQL database is automatically initialized with:
+- **Database**: `mining_wood`
+- **Schema**: `trading_analysis`
+- **User**: `trading_user`
+
+### Import Your Trading Data
+
+After deployment, import your trading data:
+
+<Steps>
+  <Step title="Access the database">
+    ```bash
+    docker compose exec postgres psql -U trading_user -d mining_wood
+    ```
+  </Step>
+  
+  <Step title="Import your data">
+    ```bash
+    # Copy your CSV files to the container
+    docker cp your-data.csv trading_app:/app/data/
+    
+    # Run your import script
+    docker compose exec trading_app python your_import_script.py
+    ```
+  </Step>
+</Steps>
+
+## Management Commands
+
+### View Logs
+
+```bash
+# All services
+docker compose logs -f
+
+# Specific service
+docker compose logs -f trading_app
+docker compose logs -f postgres
+docker compose logs -f caddy
+```
+
+### Restart Services
+
+```bash
+# Restart all services
+docker compose restart
+
+# Restart specific service
+docker compose restart trading_app
+```
+
+### Stop/Start
+
+```bash
+# Stop all services
+docker compose down
+
+# Start services
+docker compose up -d
+
+# Stop and remove volumes (⚠️ removes database data)
+docker compose down -v
+```
+
+### Update Application
+
+```bash
+# Pull latest images and restart
+docker compose pull
+docker compose up -d
+```
+
+### Database Backup
+
+```bash
+# Backup database
+docker compose exec postgres pg_dump -U trading_user mining_wood > backup.sql
+
+# Restore database
+docker compose exec -T postgres psql -U trading_user mining_wood < backup.sql
+```
+
+## Security Considerations
+
+### For Production Deployment
+
+<CardGroup cols={2}>
+  <Card title="Change Passwords" icon="key">
+    Update `POSTGRES_PASSWORD` and `FLASK_SECRET_KEY` in docker compose.yml/.env
+  </Card>
+  <Card title="Enable HTTPS" icon="lock">
+    Configure SSL certificates and enable HTTPS redirect
+  </Card>
+  <Card title="Firewall" icon="shield">
+    Only expose necessary ports (80, 443). Restrict database access (5432)
+  </Card>
+  <Card title="Regular Updates" icon="rotate">
+    Keep Docker images updated and monitor security advisories
+  </Card>
+</CardGroup>
+
+## Production Deployment
+
+### Domain Setup
+
+<Steps>
+  <Step title="DNS Configuration">
+    - Point your domain to your server's IP address
+    - For performance.miningwood.com: Create an A record pointing to your server IP
+  </Step>
+  
+  <Step title="Automatic SSL">
+    ```bash
+    # Caddy handles SSL automatically with Let's Encrypt
+    # The domain is already configured for performance.miningwood.com
+    # Just deploy and Caddy will handle the rest
+    docker compose up -d
+    ```
+  </Step>
+  
+  <Step title="Environment">
+    - Domain is already set to `performance.miningwood.com` in `.env.docker`
+    - Set `FLASK_ENV=production`
+    - Use strong passwords
+  </Step>
+</Steps>
+
+### Monitoring
+
+Consider adding monitoring services:
+
+```yaml docker-compose.yml
+# Add to docker compose.yml
+prometheus:
+  image: prom/prometheus
+  ports:
+    - "9090:9090"
+  
+grafana:
+  image: grafana/grafana
+  ports:
+    - "3000:3000"
+```
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Application Won't Start">
+    ```bash
+    # Check logs
+    docker compose logs trading_app
+    
+    # Common issues:
+    # - Database connection failure
+    # - Missing environment variables
+    # - Port conflicts
+    ```
+  </Accordion>
+  
+  <Accordion title="Database Connection Issues">
+    ```bash
+    # Check database status
+    docker compose exec postgres pg_isready -U trading_user
+    
+    # Reset database
+    docker compose down -v
+    docker compose up -d
+    ```
+  </Accordion>
+  
+  <Accordion title="Performance Issues">
+    ```bash
+    # Check resource usage
+    docker stats
+    
+    # Scale services
+    docker compose up -d --scale trading_app=2
+    ```
+  </Accordion>
+  
+  <Accordion title="SSL Certificate Issues">
+    - Ensure DNS is pointing to correct server
+    - Wait a few minutes for certificate provisioning
+    - Check Caddy logs: `docker compose logs caddy`
+  </Accordion>
+</AccordionGroup>
+
+## Development Mode
+
+To run in development mode:
+
+```bash
+# Use development override
+docker compose -f docker compose.yml -f docker compose.dev.yml up -d
+```
+
+This enables:
+- Live code reloading
+- Debug mode
+- Development tools
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Caddy Configuration" icon="server" href="/guides/deployment/caddy">
+    Learn more about Caddy reverse proxy setup
+  </Card>
+  <Card title="CI/CD Setup" icon="rocket" href="/guides/setup/cicd">
+    Automate deployments with CI/CD
+  </Card>
+</CardGroup>

@@ -1,0 +1,109 @@
+---
+title: 'CSV Upload'
+description: 'Import trading data via CSV files with drag-and-drop support'
+---
+
+## Overview
+
+The CSV Upload feature allows you to import trading transaction data through an intuitive web interface with drag-and-drop support and real-time processing feedback.
+
+## Features
+
+<CardGroup cols={2}>
+  <Card title="Drag & Drop" icon="hand-pointer">
+    Drag CSV files directly onto the upload area
+  </Card>
+  <Card title="Progress Tracking" icon="spinner">
+    Real-time progress bar during processing
+  </Card>
+  <Card title="Upload History" icon="clock-rotate-left">
+    View recent uploads and statistics
+  </Card>
+  <Card title="Validation" icon="check">
+    Automatic CSV format and size validation
+  </Card>
+</CardGroup>
+
+## CSV Format Requirements
+
+Your CSV file must include these columns:
+
+| Column | Format | Description |
+|--------|--------|-------------|
+| **Date** | MM/DD/YYYY | Transaction date |
+| **Action** | Text | Buy, Sell, Cash Dividend, etc. |
+| **Symbol** | Text | Stock ticker |
+| **Description** | Text | Transaction description |
+| **Quantity** | Number | Number of shares (can be empty for dividends) |
+| **Price** | Number | Price per share (can be empty for dividends) |
+| **Fees & Comm** | Number | Trading fees |
+| **Amount** | Number | Total transaction amount |
+
+## Example CSV
+
+```csv
+Date,Action,Symbol,Description,Quantity,Price,Fees & Comm,Amount
+01/15/2024,Buy,AAPL,Apple Inc,100,150.50,6.95,-15056.95
+01/30/2024,Sell,AAPL,Apple Inc,100,155.75,6.95,15568.05
+02/15/2024,Cash Dividend,MSFT,Microsoft Corp,,,0.00,75.50
+```
+
+## Upload Process
+
+<Steps>
+  <Step title="Navigate to Upload Page">
+    Go to `/upload` in your application
+  </Step>
+  
+  <Step title="Select File">
+    Either drag and drop your CSV file or click to browse
+  </Step>
+  
+  <Step title="Validation">
+    The system validates file type (CSV only) and size (50MB max)
+  </Step>
+  
+  <Step title="Processing">
+    Watch real-time progress updates as the file is processed
+  </Step>
+  
+  <Step title="Completion">
+    View the upload in your history and navigate to the dashboard
+  </Step>
+</Steps>
+
+## Processing Flow
+
+1. File uploaded to Flask backend
+2. Server validation (file type, size)
+3. Trading analysis script processes CSV
+4. Database synchronization
+5. History updated and temp files cleaned up
+
+## Security
+
+<CardGroup cols={2}>
+  <Card title="Authentication" icon="lock">
+    Login required for all uploads
+  </Card>
+  <Card title="Validation" icon="shield-check">
+    File type and size validation
+  </Card>
+  <Card title="Sanitization" icon="broom">
+    Secure filename handling
+  </Card>
+  <Card title="Cleanup" icon="trash">
+    Automatic temp file removal
+  </Card>
+</CardGroup>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Trading Analysis" icon="chart-line" href="/features/trading-analysis">
+    Analyze your uploaded data
+  </Card>
+  <Card title="Portfolio Management" icon="briefcase" href="/features/portfolio-management">
+    Track your current holdings
+  </Card>
+</CardGroup>

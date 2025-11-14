@@ -1,0 +1,90 @@
+---
+title: 'Trading Calendar'
+description: 'Real-time market trading days and holiday information'
+---
+
+## Overview
+
+The Trading Calendar API provides real-time metrics about NYSE (New York Stock Exchange) trading days and upcoming market holidays.
+
+## Features
+
+<CardGroup cols={2}>
+  <Card title="Remaining Days" icon="calendar-days">
+    Trading days left in month and year
+  </Card>
+  <Card title="Next Holiday" icon="flag">
+    Upcoming market closure information
+  </Card>
+  <Card title="Market Status" icon="clock">
+    Is the market open today/tomorrow?
+  </Card>
+  <Card title="Holiday List" icon="list">
+    View upcoming market holidays
+  </Card>
+</CardGroup>
+
+## API Endpoint
+
+### GET /api/trading-calendar/metrics
+
+Returns trading calendar metrics including remaining trading days and next market holiday.
+
+**Authentication**: Required (OAuth 2.0)
+
+**Response**:
+
+```json
+{
+  "success": true,
+  "remaining_trading_days_month": 14,
+  "remaining_trading_days_year": 36,
+  "next_market_holiday": {
+    "name": "Thanksgiving Day",
+    "date": "2025-11-27"
+  },
+  "days_until_next_market_holiday": 19,
+  "upcoming_holidays": [
+    {
+      "name": "Thanksgiving Day",
+      "date": "2025-11-27",
+      "days_until": 19
+    },
+    {
+      "name": "Christmas Day",
+      "date": "2025-12-25",
+      "days_until": 47
+    }
+  ],
+  "is_market_open_today": false,
+  "is_market_open_tomorrow": false,
+  "timezone": "America/New_York"
+}
+```
+
+## Response Fields
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `remaining_trading_days_month` | integer | Trading days left in current month |
+| `remaining_trading_days_year` | integer | Trading days left in current year |
+| `next_market_holiday` | object | Next market closure info |
+| `days_until_next_market_holiday` | integer | Days until next closure |
+| `upcoming_holidays` | array | List of upcoming holidays (up to 10) |
+| `is_market_open_today` | boolean | Market open today? |
+| `is_market_open_tomorrow` | boolean | Market open tomorrow? |
+
+## Data Source
+
+Uses `pandas_market_calendars` library for accurate NYSE calendar data.
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="API Reference" icon="code" href="/api-reference/introduction">
+    View full API documentation
+  </Card>
+  <Card title="Trading Analysis" icon="chart-line" href="/features/trading-analysis">
+    Analyze trading performance
+  </Card>
+</CardGroup>

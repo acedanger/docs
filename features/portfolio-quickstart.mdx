@@ -1,0 +1,181 @@
+---
+title: 'Portfolio Quick Start'
+description: 'Get started with portfolio tracking in minutes'
+---
+
+## Quick Setup Guide
+
+Get your portfolio up and running in just a few minutes.
+
+## Step 1: Get Your Finnhub API Key
+
+<Steps>
+  <Step title="Register">
+    Go to [Finnhub.io](https://finnhub.io/register) and sign up for a free account
+  </Step>
+  
+  <Step title="Get API Key">
+    After logging in, copy your API key from the dashboard
+  </Step>
+</Steps>
+
+## Step 2: Configure the API Key
+
+Add your Finnhub API key to the `.env.docker` file (or `.env` if running locally):
+
+```bash .env.docker
+FINNHUB_API_KEY=your_api_key_here
+```
+
+<Note>
+  The `.env.docker` file already has a placeholder for the API key.
+</Note>
+
+## Step 3: Deploy/Restart the Application
+
+If you're already running the application, restart it to load the new environment variable:
+
+```bash
+docker compose down
+docker compose up -d
+```
+
+For first-time deployment:
+
+<Tabs>
+  <Tab title="Linux/Mac">
+    ```bash
+    ./deploy.sh
+    ```
+  </Tab>
+  <Tab title="Windows">
+    ```batch
+    deploy.bat
+    ```
+  </Tab>
+</Tabs>
+
+## Step 4: Apply Database Schema
+
+The portfolio holdings table needs to be created in your database:
+
+```bash
+# Access the database container
+docker compose exec postgres psql -U trading_user -d mining_wood
+
+# Run the schema file
+\i /docker-entrypoint-initdb.d/portfolio_schema.sql
+
+# Or run it directly from the host
+docker compose exec -T postgres psql -U trading_user -d mining_wood < database_init/portfolio_schema.sql
+```
+
+## Step 5: Access the Portfolio Page
+
+<Steps>
+  <Step title="Open your browser">
+    Navigate to `http://localhost:8080`
+  </Step>
+  
+  <Step title="Go to Portfolio">
+    You should be redirected to the Portfolio Management page (now the default landing page)
+  </Step>
+  
+  <Step title="Check for errors">
+    If you see an error, check the application logs:
+    ```bash
+    docker compose logs -f trading_app
+    ```
+  </Step>
+</Steps>
+
+## Step 6: Add Your First Holding
+
+### Option A: Manual Entry
+
+<Steps>
+  <Step title="Click Add Holding">
+    Click the **"Add Holding"** button
+  </Step>
+  
+  <Step title="Fill in the form">
+    - **Symbol**: Enter a stock ticker (e.g., AAPL)
+    - **Type**: Select "stock", "etf", or "mutual_fund"
+    - **Shares**: Enter the number of shares you own
+    - **Average Cost**: Enter your average cost per share
+    - **Notes**: (Optional) Add any notes
+  </Step>
+  
+  <Step title="Save">
+    Click **"Save"**
+  </Step>
+</Steps>
+
+### Option B: CSV Upload
+
+<Steps>
+  <Step title="Prepare CSV file">
+    Create a CSV file with your holdings:
+    
+    ```csv
+    symbol,type,shares,average_cost,notes
+    AAPL,stock,100,150.50,Apple Inc
+    MSFT,stock,50,300.00,Microsoft
+    VOO,etf,25,400.00,S&P 500 ETF
+    ```
+  </Step>
+  
+  <Step title="Upload">
+    - Click the **"Upload CSV"** button
+    - Select your CSV file
+    - Click **"Upload"**
+  </Step>
+</Steps>
+
+## Step 7: Refresh Prices
+
+Click the **"Refresh Prices"** button to fetch current market prices from Finnhub for all your holdings.
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Prices Not Updating">
+    **Solution**: Verify your API key is set correctly in `.env.docker` and you've restarted the containers.
+    
+    ```bash
+    # Check if environment variable is loaded
+    docker compose exec trading_app env | grep FINNHUB
+    ```
+  </Accordion>
+  
+  <Accordion title="Database Table Not Found">
+    **Solution**: Run the portfolio schema script:
+    
+    ```bash
+    docker compose exec -T postgres psql -U trading_user -d mining_wood < database_init/portfolio_schema.sql
+    ```
+  </Accordion>
+  
+  <Accordion title="CSV Upload Fails">
+    **Solution**: Make sure your CSV file has the correct format with columns: `symbol`, `type`, `shares`, `average_cost`, `notes`
+  </Accordion>
+  
+  <Accordion title="Application Won't Start">
+    **Solution**: Check the logs for errors:
+    
+    ```bash
+    docker compose logs -f trading_app
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Portfolio Management" icon="chart-line" href="/features/portfolio-management">
+    Learn more about portfolio features
+  </Card>
+  <Card title="Trading Analysis" icon="magnifying-glass-chart" href="/features/trading-analysis">
+    Analyze your trading performance
+  </Card>
+</CardGroup>

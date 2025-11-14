@@ -1,0 +1,104 @@
+---
+title: 'Refresh Portfolio Prices'
+api: 'POST /api/portfolio/refresh-prices'
+description: 'Fetch current market prices for all portfolio holdings'
+---
+
+## Endpoint
+
+```
+POST /api/portfolio/refresh-prices
+```
+
+## Description
+
+Fetches the latest market prices from Finnhub API for all holdings in the user's portfolio.
+
+## Authentication
+
+Requires OAuth 2.0 authentication via session cookies.
+
+## Rate Limiting
+
+The free Finnhub API tier allows 60 requests per minute. The application intelligently manages API requests to stay within these limits.
+
+## Response
+
+<ResponseField name="success" type="boolean" required>
+  Indicates if the refresh was successful
+</ResponseField>
+
+<ResponseField name="updated_count" type="number">
+  Number of holdings successfully updated
+</ResponseField>
+
+<ResponseField name="errors" type="array">
+  List of any errors encountered during refresh
+</ResponseField>
+
+## Example
+
+<CodeGroup>
+```bash cURL
+curl -X POST https://your-domain.com/api/portfolio/refresh-prices \
+  -H "Cookie: session=your_session_cookie"
+```
+
+```javascript JavaScript
+const response = await fetch('/api/portfolio/refresh-prices', {
+  method: 'POST'
+});
+
+const data = await response.json();
+
+if (data.success) {
+  console.log(`Updated ${data.updated_count} holdings`);
+}
+```
+
+```python Python
+import requests
+
+response = requests.post('http://localhost:5000/api/portfolio/refresh-prices')
+data = response.json()
+
+if data['success']:
+    print(f"Updated {data['updated_count']} holdings")
+```
+</CodeGroup>
+
+## Response Example
+
+```json Success
+{
+  "success": true,
+  "updated_count": 5,
+  "message": "Successfully updated prices for 5 holdings"
+}
+```
+
+```json Partial Success
+{
+  "success": true,
+  "updated_count": 4,
+  "errors": [
+    {
+      "symbol": "INVALID",
+      "error": "Symbol not found"
+    }
+  ]
+}
+```
+
+```json Error
+{
+  "success": false,
+  "error": "Finnhub API key not configured"
+}
+```
+
+## Notes
+
+- Prices are automatically refreshed when viewing the portfolio page if last update was >15 minutes ago
+- Use this endpoint to manually force a refresh at any time
+- Mutual fund prices may be delayed 15-30 minutes

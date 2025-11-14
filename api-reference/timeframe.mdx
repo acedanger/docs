@@ -1,0 +1,105 @@
+---
+title: 'Get Timeframe Data'
+api: 'GET /api/timeframe-data'
+description: 'Retrieves trading analysis data for a custom timeframe or all-time data'
+---
+
+## Endpoint
+
+```
+GET /api/timeframe-data
+```
+
+## Query Parameters
+
+<ParamField query="start" type="string">
+  Start date in YYYY-MM-DD format (optional if using all=true)
+</ParamField>
+
+<ParamField query="end" type="string">
+  End date in YYYY-MM-DD format (optional if using all=true)
+</ParamField>
+
+<ParamField query="all" type="string">
+  Set to "true" for all-time data (ignores start/end dates)
+</ParamField>
+
+<ParamField query="symbols" type="string">
+  Comma-separated list of stock symbols to filter by (optional)
+</ParamField>
+
+## Response
+
+Returns summary, weekly breakdown, monthly breakdown, and open positions.
+
+## Example
+
+<CodeGroup>
+```bash Date Range
+curl -X GET "https://your-domain.com/api/timeframe-data?start=2024-01-01&end=2024-08-31"
+```
+
+```bash All Time
+curl -X GET "https://your-domain.com/api/timeframe-data?all=true"
+```
+
+```bash With Symbols
+curl -X GET "https://your-domain.com/api/timeframe-data?start=2024-06-01&end=2024-08-31&symbols=AAPL,TSLA,MSFT"
+```
+
+```javascript JavaScript
+// Get YTD data
+const start = '2024-01-01';
+const end = new Date().toISOString().split('T')[0];
+const response = await fetch(`/api/timeframe-data?start=${start}&end=${end}`);
+const data = await response.json();
+
+console.log('Total P/L:', data.summary.trading_profit_loss);
+```
+</CodeGroup>
+
+## Response Example
+
+```json
+{
+  "success": true,
+  "data": {
+    "summary": {
+      "trading_profit_loss": 2450.75,
+      "total_dividends": 380.50,
+      "total_trades": 45,
+      "winning_trades": 28,
+      "win_rate_percentage": 62.22
+    },
+    "weekly_summary": [
+      {
+        "week_start": "2024-08-26",
+        "period": "2024-08-26",
+        "trading_profit_loss": 150.25,
+        "total_dividends": 25.00,
+        "total_trades": 3,
+        "winning_trades": 2,
+        "win_rate_percentage": 66.67
+      }
+    ],
+    "monthly_summary": [
+      {
+        "month_start": "2024-08-01",
+        "period": "2024-08",
+        "trading_profit_loss": 850.75,
+        "total_dividends": 125.50,
+        "total_trades": 15,
+        "winning_trades": 9,
+        "win_rate_percentage": 60.0
+      }
+    ],
+    "open_positions": [
+      {
+        "symbol": "NVDA",
+        "shares": 150
+      }
+    ]
+  },
+  "data_source": "postgresql"
+}
+```
